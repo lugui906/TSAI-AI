@@ -1,0 +1,7 @@
+#!/bin/bash
+# APS AI · 伴侣自动启动（由 soffice 包装脚本在打开 Office 时调用）
+# 带防重复 guard：伴侣已在运行则直接退出。
+if pgrep -f 'main[.]py --lo' >/dev/null 2>&1; then
+    exit 0
+fi
+nohup python3 /opt/aps/main.py --lo >/tmp/lo-aps-companion.log 2>&1 &

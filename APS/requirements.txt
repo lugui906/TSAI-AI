@@ -1,0 +1,6 @@
+python-pptx
+openpyxl
+python-docx
+reportlab
+pypdf
+PyGObject

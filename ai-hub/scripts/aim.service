@@ -4,8 +4,8 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/aim serve
-ExecStop=/usr/local/bin/aim serve --stop
+ExecStart=/usr/bin/aim serve
+ExecStop=/usr/bin/aim serve --stop
 Restart=on-failure
 RestartSec=5
 LimitNOFILE=65536

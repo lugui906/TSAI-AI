@@ -1,16 +1,43 @@
 package opencode
 
 import (
+	"bufio"
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"os/exec"
 	"strings"
 	"time"
+
+	"github.com/chindows/aim/internal/storage"
 )
 
-var EnginePath = "opencode"
+const (
+	DefaultEngineName  = "opencode"
+	OpenClawEngineName = "openclaw"
+)
+
+var EnginePath = DefaultEngineName
+
+// EnginePathFromConfig returns the persisted default engine binary name
+// from aim's config, falling back to opencode when unset or unavailable.
+func EnginePathFromConfig() string {
+	cfg, err := storage.LoadConfig()
+	if err != nil {
+		return DefaultEngineName
+	}
+	if cfg.Engine != "" {
+		return cfg.Engine
+	}
+	return DefaultEngineName
+}
+
+// ApplyPersistedEngine loads the persisted engine into the global EnginePath.
+// Called once at CLI startup so every command honors the configured default.
+func ApplyPersistedEngine() {
+	EnginePath = EnginePathFromConfig()
+}
 
 type PlanAgent struct {
 	sessionID string
@@ -44,51 +71,107 @@ func ctxOrDefault(ctx context.Context) context.Context {
 	return ctx
 }
 
-type opencodeEvent struct {
-	Type    string `json:"type"`
-	Part    struct {
-		Text string `json:"text"`
-	} `json:"part"`
+var providerEnvMap = map[string]string{
+	"openai":    "OPENAI_API_KEY",
+	"anthropic": "ANTHROPIC_API_KEY",
+	"deepseek":  "DEEPSEEK_API_KEY",
+	"groq":      "GROQ_API_KEY",
+	"google":    "GOOGLE_API_KEY",
+	"mistral":   "MISTRAL_API_KEY",
+	"cohere":    "COHERE_API_KEY",
+	"together":  "TOGETHER_API_KEY",
+	"openrouter":"OPENROUTER_API_KEY",
 }
 
-func runOpencode(ctx context.Context, args []string) (*AgentResult, error) {
-	cmd := exec.CommandContext(ctxOrDefault(ctx), EnginePath, args...)
-
-	output, err := cmd.CombinedOutput()
+func APIKeyEnvVars() []string {
+	cfg, err := storage.LoadConfig()
 	if err != nil {
-		return nil, fmt.Errorf("opencode error: %w\noutput: %s", err, string(output))
+		return nil
 	}
+	var envs []string
+	for provider, key := range cfg.APIKeys {
+		envKey, ok := providerEnvMap[provider]
+		if !ok {
+			envKey = strings.ToUpper(provider) + "_API_KEY"
+		}
+		envs = append(envs, envKey+"="+key)
+	}
+	return envs
+}
 
-	lines := strings.Split(strings.TrimSpace(string(output)), "\n")
-	var textParts []string
+func runEngine(ctx context.Context, args []string) (*AgentResult, error) {
+	adapter := CurrentAdapter()
+	cmd := exec.CommandContext(ctxOrDefault(ctx), adapter.Binary(), args...)
+	cmd.Env = append(os.Environ(), APIKeyEnvVars()...)
 
-	for _, line := range lines {
-		if line == "" {
-			continue
-		}
-		var evt opencodeEvent
-		if err := json.Unmarshal([]byte(line), &evt); err != nil {
-			continue
-		}
-		if evt.Type == "text" && evt.Part.Text != "" {
-			textParts = append(textParts, evt.Part.Text)
-		}
+	var stdout, stderr strings.Builder
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		return nil, fmt.Errorf("%s error: %w\nstderr: %s", adapter.Binary(), err, stderr.String())
 	}
 
 	return &AgentResult{
 		Success: true,
-		Output:  strings.Join(textParts, "\n"),
+		Output:  strings.Join(adapter.ExtractText(stdout.String()), "\n"),
 	}, nil
 }
 
+// RunAndStream executes the engine with the given argv and prints text output
+// as it arrives (opencode NDJSON) or after completion (openclaw JSON).
+func RunAndStream(ctx context.Context, args []string) error {
+	adapter := CurrentAdapter()
+	cmd := exec.CommandContext(ctxOrDefault(ctx), adapter.Binary(), args...)
+	cmd.Env = append(os.Environ(), APIKeyEnvVars()...)
+	cmd.Stderr = os.Stderr
+
+	if adapter.IsOpenClaw() {
+		var stdout, stderr strings.Builder
+		cmd.Stdout = &stdout
+		cmd.Stderr = &stderr
+		if err := cmd.Start(); err != nil {
+			return err
+		}
+		if err := cmd.Wait(); err != nil {
+			return fmt.Errorf("%s: %w\n%s", adapter.Binary(), err, stderr.String())
+		}
+		for _, t := range adapter.ExtractText(stdout.String()) {
+			fmt.Println(t)
+		}
+		return nil
+	}
+
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return err
+	}
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+
+	scanner := bufio.NewScanner(stdout)
+	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" {
+			continue
+		}
+		for _, t := range adapter.ExtractText(line) {
+			fmt.Println(t)
+		}
+	}
+	return cmd.Wait()
+}
+
 func (p *PlanAgent) Execute(ctx context.Context, prompt string) (*AgentResult, error) {
-	args := []string{"run", "--format", "json", prompt}
-	return runOpencode(ctx, args)
+	args := CurrentAdapter().RunArgs(prompt, false, false)
+	return runEngine(ctx, args)
 }
 
 func (b *BuildAgent) Execute(ctx context.Context, prompt string) (*AgentResult, error) {
-	args := []string{"run", "--auto", "--format", "json", prompt}
-	return runOpencode(ctx, args)
+	args := CurrentAdapter().RunArgs(prompt, true, false)
+	return runEngine(ctx, args)
 }
 
 type EngineManager struct {

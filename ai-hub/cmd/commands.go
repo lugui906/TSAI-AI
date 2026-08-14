@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -35,6 +34,7 @@ func Execute() {
 		printUsage()
 		os.Exit(1)
 	}
+	opencode.ApplyPersistedEngine()
 	cmdName := os.Args[1]
 	if cmdName == "--help" || cmdName == "-h" || cmdName == "help" {
 		printUsage()
@@ -69,55 +69,36 @@ func init() {
 	registerFix()
 	registerDebug()
 	registerChat()
+	registerAPIKey()
+	registerOC()
 }
 
 func registerRun() {
-	runOpenCode := func(ocArgs []string) {
-		cmd := exec.CommandContext(context.Background(), opencode.EnginePath, ocArgs...)
-		output, err := cmd.CombinedOutput()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %s\n%s", err, string(output))
+	runPrompt := func(prompt string, continueSession bool) {
+		if prompt == "" {
+			fmt.Fprintln(os.Stderr, "Error: prompt required")
 			os.Exit(1)
 		}
-		for _, line := range strings.Split(strings.TrimSpace(string(output)), "\n") {
-			if line == "" {
-				continue
-			}
-			var evt struct {
-				Type string `json:"type"`
-				Part struct {
-					Text string `json:"text"`
-				} `json:"part"`
-			}
-			if err := json.Unmarshal([]byte(line), &evt); err != nil {
-				continue
-			}
-			if evt.Type == "text" && evt.Part.Text != "" {
-				fmt.Println(evt.Part.Text)
-			}
+		op := "newrun"
+		if continueSession {
+			op = "run"
 		}
+		storage.LogOperation(op, prompt, "system", "started", "", false)
+		adapter := opencode.CurrentAdapter()
+		if err := opencode.RunAndStream(context.Background(), adapter.RunArgs(prompt, true, continueSession)); err != nil {
+			storage.LogOperation(op, prompt, "system", "failed", err.Error(), false)
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+		storage.LogOperation(op, prompt, "system", "completed", "", false)
 	}
 
 	Register("run", []string{}, "Execute tasks with full system access (continues conversation)", func(args []string) {
-		prompt := strings.Join(args, " ")
-		if prompt == "" {
-			fmt.Fprintln(os.Stderr, "Error: prompt required")
-			os.Exit(1)
-		}
-		storage.LogOperation("run", prompt, "system", "started", "", false)
-		runOpenCode([]string{"run", "--auto", "--continue", "--format", "json", prompt})
-		storage.LogOperation("run", prompt, "system", "completed", "", false)
+		runPrompt(strings.Join(args, " "), true)
 	})
 
 	Register("newrun", []string{}, "Execute tasks in a new conversation", func(args []string) {
-		prompt := strings.Join(args, " ")
-		if prompt == "" {
-			fmt.Fprintln(os.Stderr, "Error: prompt required")
-			os.Exit(1)
-		}
-		storage.LogOperation("newrun", prompt, "system", "started", "", false)
-		runOpenCode([]string{"run", "--auto", "--format", "json", prompt})
-		storage.LogOperation("newrun", prompt, "system", "completed", "", false)
+		runPrompt(strings.Join(args, " "), false)
 	})
 }
 
@@ -133,11 +114,13 @@ func registerModel() {
 
 		switch sub {
 		case "list":
-			ocArgs := []string{"models"}
+			extra := ""
 			if len(subArgs) > 0 {
-				ocArgs = append(ocArgs, subArgs[0])
+				extra = subArgs[0]
 			}
-			cmd := exec.CommandContext(context.Background(), opencode.EnginePath, ocArgs...)
+			adapter := opencode.CurrentAdapter()
+			cmd := exec.CommandContext(context.Background(), adapter.Binary(), adapter.ModelsArgs(extra)...)
+			cmd.Env = append(os.Environ(), opencode.APIKeyEnvVars()...)
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
 			if err := cmd.Run(); err != nil {
@@ -145,7 +128,9 @@ func registerModel() {
 			}
 
 		case "switch", "set-backend":
-			cmd := exec.CommandContext(context.Background(), opencode.EnginePath, "providers")
+			adapter := opencode.CurrentAdapter()
+			cmd := exec.CommandContext(context.Background(), adapter.Binary(), adapter.ProvidersArgs()...)
+			cmd.Env = append(os.Environ(), opencode.APIKeyEnvVars()...)
 			cmd.Stdin = os.Stdin
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
@@ -286,12 +271,9 @@ func registerDebug() {
 
 func registerChat() {
 	Register("chat", []string{}, "Interactive AI chat session via OpenCode", func(args []string) {
-		ocArgs := []string{"run"}
-		if extra := args; len(extra) > 0 {
-			ocArgs = append(ocArgs, strings.Join(extra, " "))
-		}
-
-		cmd := exec.CommandContext(context.Background(), opencode.EnginePath, ocArgs...)
+		adapter := opencode.CurrentAdapter()
+		cmd := exec.CommandContext(context.Background(), adapter.Binary(), adapter.ChatArgs()...)
+		cmd.Env = append(os.Environ(), opencode.APIKeyEnvVars()...)
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr

@@ -117,7 +117,7 @@ func TestRunOpencodeNoBinary(t *testing.T) {
 
 	EnginePath = "nonexistent-binary-12345"
 
-	_, err := runOpencode(context.Background(), []string{"run", "test"})
+	_, err := runEngine(context.Background(), []string{"run", "test"})
 	if err == nil {
 		t.Error("expected error when binary doesn't exist")
 	}

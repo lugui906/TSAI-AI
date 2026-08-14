@@ -1,25 +1,25 @@
 # TSAI-AI
 
-TSAI-OS 相关 AI 项目集合，全部为独立子项目，统一采用 `kebab-case` 命名。
+TSAI-OS 相关 AI 项目集合，全部为独立子项目，统一采用 `kebab-case` 命名
+（`APS` 为产品名，按原名保留）。
 
 ## 整体架构
 
 ```
                     ┌─────────────────────────────────────┐
                     │           AI 中枢 ai-hub (Go)        │
-                    │   aim CLI → opencode 引擎 → LLM 提供商 │
+                    │  aim CLI → opencode/openclaw 引擎    │
                     │   + 内网远程服务 / 系统接口 / 加密配置  │
                     └───────────┬─────────────────────────┘
                                 │  aim newrun / aim run / aim fix / aim debug
         ┌───────────┬───────────┼────────────┬──────────────┬─────────────┐
         ▼           ▼           ▼            ▼              ▼             ▼
-  桌面客户端    会话工具      语音/音频      Web 服务      系统管理       外部依赖
-  ai-client    ai-notes     ai-voice     web-ai-server  ai-pc-manager  opencode
-  ai-gui       ai-notes→LLM ai-clock     (Flask+OCR)    (GTK4)        ollama(回退)
-  ai-desktop   meeting-summary           aim-knowledge  model-manager  tine(桌面驱动)
-  ai-assistant meeting-summary-cli                                     tesseract(OCR)
-   ai-file-chat aim-knowledge
-   手势控制: gesture-control（独立，离线本地推理，不走 AIM）
+  桌面客户端    文档/办公     语音/音频      Web 服务      系统管理       外部依赖
+  ai-client    APS          ai-voice     web-ai-server  ai-pc-manager  opencode
+  ai-gui       ai-notes     ai-clock     (Flask+OCR)    (GTK4)        openclaw
+  ai-desktop   ai-file-chat              aim-knowledge  model-manager  ollama(回退)
+  ai-assistant                            gesture-control(tine/OCR 桌面驱动)
+  gesture-control（独立，离线本地推理，不走 AIM）
 ```
 
 **统一 AI 后端**：绝大多数项目通过系统命令 `aim`（由 `ai-hub` 构建）完成 AI 调用，
@@ -30,7 +30,8 @@ TSAI-OS 相关 AI 项目集合，全部为独立子项目，统一采用 `kebab-
 
 | 目录 | 说明 | 技术栈 | 详细文档 |
 |------|------|--------|----------|
-| `ai-hub` | AIM 2.0 AI 智能中枢（`aim` CLI 来源） | Go 1.22 | [README](ai-hub/README.md) |
+| `ai-hub` | AIM 2.0 AI 智能中枢（`aim` CLI 来源，opencode/openclaw 双引擎） | Go 1.22 | [README](ai-hub/README.md) |
+| `APS` | AI 原生办公套件（对标 WPS：文字/表格/演示/PDF + AI 操作文档） | Python/GTK4 | [README](APS/README.md) |
 | `ai-voice` | 本地 Whisper 语音助手（录音→VAD→转写→AIM→TTS） | Python/GTK3 | [README](ai-voice/README.md) |
 | `ai-notes` | AI 笔记编辑器（md/docx/xlsx + AI 改写/翻译/总结） | Python/GTK4 | [README](ai-notes/README.md) |
 | `ai-gui` | AIM 智能体管理器（角色对话 CLI + GUI） | Python/GTK3 | [README](ai-gui/README.md) |
@@ -51,8 +52,8 @@ TSAI-OS 相关 AI 项目集合，全部为独立子项目，统一采用 `kebab-
 
 | 二进制 | 用途 | 依赖它的项目 |
 |---|---|---|
-| `aim` | AIM 2.0 AI 中间件（newrun/run/fix/debug） | ai-voice、ai-client、ai-desktop、ai-assistant、ai-file-chat、ai-clock、meeting-summary*、web-ai-server、aim-knowledge、ai-gui、ai-pc-manager |
-| `opencode` | LLM 引擎（aim 内部委托） | ai-hub、ai-notes、model-manager |
+| `aim` | AIM 2.0 AI 中间件（newrun/run/fix/debug） | ai-voice、ai-client、ai-desktop、ai-assistant、ai-file-chat、ai-clock、meeting-summary*、web-ai-server、aim-knowledge、ai-gui、ai-pc-manager、APS |
+| `opencode` / `openclaw` | AI 引擎（aim 内部委托） | ai-hub、ai-notes、model-manager |
 | `ollama` | 本地模型回退后端 | ai-client、ai-pc-manager |
 | `tine` | AI 桌面驱动（AT-SPI2 控件操作） | ai-desktop、ai-assistant |
 | `tesseract` | OCR（chi_sim+eng） | ai-assistant、ai-client |

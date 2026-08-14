@@ -1,0 +1,26 @@
+#!/bin/bash
+# APS AI · LibreOffice 伴侣启动器
+#
+# 1) 若 LibreOffice 未在监听 UNO socket 端口 2002，则启动之
+#    （soffice 包装脚本会自动注入 --accept=socket,host=localhost,port=2002）。
+# 2) 启动 APS 伴侣窗口 —— 通过端口 2002 对 LibreOffice 当前文档做 AI 操作，
+#    输出实时刷新，不展示文件内容。
+set -e
+APS_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+
+if ! python3 -c "
+import socket
+s = socket.socket()
+s.settimeout(0.3)
+try:
+    s.connect(('localhost', 2002))
+    s.close()
+    print('port-open')
+except Exception:
+    raise SystemExit(1)
+" >/dev/null 2>&1; then
+    echo "正在启动 LibreOffice（自动带 UNO socket 端口 2002）…"
+    nohup soffice --norestore --nologo >/dev/null 2>&1 &
+fi
+
+exec python3 "$APS_ROOT/main.py" --lo

@@ -24,6 +24,7 @@ type Config struct {
 	APIKeys     map[string]string `json:"api_keys"`
 	RemoteToken string            `json:"remote_token"`
 	Backend     string            `json:"backend"`
+	Engine      string            `json:"engine"`
 	VLLMHost    string            `json:"vllm_host"`
 	CloudURL    string            `json:"cloud_url"`
 	ServePort   int               `json:"serve_port"`
@@ -33,6 +34,7 @@ func DefaultConfig() *Config {
 	return &Config{
 		APIKeys:   make(map[string]string),
 		Backend:   "vllm",
+		Engine:    "opencode",
 		VLLMHost:  "http://localhost:8000",
 		ServePort: 21526,
 	}

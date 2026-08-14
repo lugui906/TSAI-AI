@@ -10,15 +10,30 @@ Azure Alignment Manager (AIM) 中枢子系统 —— 在线会议概括。业务
 PipeWire 采集 → VAD 分段 → AIM(newrun/run) → 纪要 .md + 桌面通知
 ```
 
-- `main.py`       终端守护进程入口（含 `--self-test` 自检）
 - `app.py`        GTK3 图形界面入口
+- `main.py`       终端守护进程入口（含 `--self-test` 自检）
 - `aim_client/`   AIM CLI 交互层（NEWRUN/RUN 封装，会话由 AIM 管理）
 - `meeting/`
-  - `recorder.py`     PipeWire 音频采集（pw-record raw 16k 单声道）
-  - `vad.py`          webrtcvad 语音分段 → 逐段 wav
-  - `scheduler.py`    按 audio 片段组装载荷，首段 newrun、后续 run 增量
+  - `recorder.py`     PipeWire 音频采集（parec raw 16k 单声道，规避 pw-record 的 monitor 解析 bug）
+  - `vad.py`          webrtcvad 语音分段 → 逐段 wav（当前流程未启用，整段连续录音）
+  - `scheduler.py`    按 audio 片段组装载荷，首段 newrun、后续 run 增量；async_mode 后台线程
+  - `transcribe.py`   pywhispercpp 本地转写：音量归一化、剥离爆音、≥120s 并行分块
   - `persistence.py`  纪要落盘 Markdown（知识库归档留 stub）
-  - `notify.py`       notify-send 桌面通知
+  - `notify.py`       notify-send 桌面通知（带节流）
+
+## 核心运行流程
+
+```
+GUI(app.py):
+  「开始录制」→ worker 线程写 full_{source}.wav(16k 单声道 16bit)
+    → 用户「停止并生成纪要」→ Scheduler(async) → 后台线程
+      → transcribe(wav→txt) → aim newrun(指令+文件路径) → on_result
+      → GLib.idle_add 落盘 .md + 追加 UI + 桌面通知
+
+CLI(main.py):
+  recorder.start → 循环直到 SIGINT/SIGTERM → sink.close
+    → scheduler.submit([full_path])（同步）→ notify + 日志
+```
 
 ## 依赖
 
@@ -44,7 +59,10 @@ python3 main.py --source mic          # 实时采集麦克风
 python3 main.py --self-test           # 合成音频自检
 ```
 
+> 同源变体见 `meeting-summary-cli/`：采集层改用 `pw-record`（PipeWire 原生），其余模块一致。
+
 ## 说明
+
 - AIM 命令入参为 `aim newrun <载荷>`（新会话）、`aim run <载荷>`（接续会话）。
 - 系统内录使用输出设备的 Monitor 源；麦克风使用默认输入源；`--target <节点>` 可覆盖。
 - 转写优先使用本地较大模型（`ggml-small`，若存在），否则回退 `ggml-base`。

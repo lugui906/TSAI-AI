@@ -10,6 +10,44 @@ aim CLI → OpenCode 引擎 → AI Provider（云端/本地模型）
        → 系统接口（硬件/进程/虚拟机）
 ```
 
+## 目录结构
+
+```
+main.go                       入口：仅调用 cmd.Execute()
+cmd/commands.go               CLI 命令注册与分发（run/newrun/model/serve/fix/debug/chat）
+internal/
+├── backend/                  Backend 接口 + CloudBackend(OpenAI 兼容) + VLLMBackend
+│   └── manager.go          多后端注册/切换（⚠️ 当前 CLI 未真正接线）
+├── core/scheduler.go         TaskQueue + SessionPool + 并行 Scheduler（骨架）
+├── opencode/engine.go        PlanAgent(只读) / BuildAgent(--auto 全权限) / EngineManager
+├── server/serve.go           内网 HTTP 服务（Token 鉴权）
+├── storage/storage.go        AES-256-GCM 加密配置 + JSONL 操作日志
+└── system/system.go          硬件信息 / 进程 / 虚拟机接口
+scripts/
+├── aim.service               systemd 单元
+└── chindows-integrate.sh     安装/卸载/挂起/恢复钩子
+```
+
+## 核心运行流程
+
+```
+main.go → cmd.Execute()
+  ├─ aim run "..."      → exec opencode run --auto --continue --format json → 流式输出
+  ├─ aim newrun "..."   → 同上，但去掉 --continue（全新会话）
+  ├─ aim model ...      → 透传 opencode models / providers
+  ├─ aim serve          → storage.LoadConfig → HTTP 服务（/health /v1/chat /v1/models + Token）
+  ├─ aim fix "问题"      → BuildAgent(fullAccess) → opencode run --auto
+  ├─ aim debug [目标]   → 采集硬件信息 + PlanAgent 只读诊断 + 最近操作日志
+  └─ aim chat           → 交互式 opencode run（继承 stdin/stdout/stderr）
+```
+
+## 已知半成品痕迹
+
+- `internal/server` 的 `/v1/chat` 目前是 echo 桩，未真正对接后端推理。
+- `internal/core` 的 scheduler worker 只置 running 状态，未实际执行任务。
+- `internal/backend` 的 Manager 在 CLI 中未被使用（模型管理直接委托 opencode）。
+- systemd 单元的 `ExecStop` 指向不存在的 `aim serve --stop`。
+
 ## 命令
 
 | 命令 | 功能 |

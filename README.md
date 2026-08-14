@@ -18,9 +18,8 @@ TSAI-OS 相关 AI 项目集合，全部为独立子项目，统一采用 `kebab-
   ai-gui       ai-notes→LLM ai-clock     (Flask+OCR)    (GTK4)        ollama(回退)
   ai-desktop   meeting-summary           aim-knowledge  model-manager  tine(桌面驱动)
   ai-assistant meeting-summary-cli                                     tesseract(OCR)
-  ai-file-chat aim-knowledge
-  手势控制: gesture-control（独立，离线本地推理，不走 AIM）
-  手机互联: kde-phone（KDE Connect APK 部署包）
+   ai-file-chat aim-knowledge
+   手势控制: gesture-control（独立，离线本地推理，不走 AIM）
 ```
 
 **统一 AI 后端**：绝大多数项目通过系统命令 `aim`（由 `ai-hub` 构建）完成 AI 调用，
@@ -43,7 +42,6 @@ TSAI-OS 相关 AI 项目集合，全部为独立子项目，统一采用 `kebab-
 | `ai-assistant` | 快捷键 AI 助手（Alt+S/T/D，截图 OCR + 桌面上下文） | Python/GTK4 | [README](ai-assistant/README.md) |
 | `ai-pc-manager` | AI 电脑管家（系统监控 + AI 运维） | Python/GTK4 | [README](ai-pc-manager/README.md) |
 | `ai-file-chat` | Nautilus 文件聊天（右键附件对话） | Python/GTK3 | [README](ai-file-chat/README.md) |
-| `kde-phone` | KDE Connect 手机连接 APK 部署包 | Android APK | [README](kde-phone/README.md) |
 | `ai-desktop` | AI 桌面控制（tine 驱动 GNOME Wayland） | Python/GTK3 | [README](ai-desktop/README.md) |
 | `model-manager` | 模型管理器（opencode.jsonc 可视化配置） | Python/GTK3 | [README](model-manager/README.md) |
 | `web-ai-server` | Web AI 服务器（Flask 局域网聊天 + OCR + 定时） | Python/Flask | [README](web-ai-server/README.md) |

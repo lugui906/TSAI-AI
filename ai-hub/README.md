@@ -173,7 +173,20 @@ make install    # 安装到 /usr/local/bin
 make test       # 运行测试
 ```
 
-依赖：Go 1.22+，无需其他外部依赖。运行时依赖 `opencode` CLI（默认）或 `openclaw`。
+依赖：Go 1.22+，无需其他外部依赖。
+
+### 运行时依赖
+
+- **必需：`opencode`** —— 默认 AI 引擎，`aim` 的所有推理/执行委托给它，必须安装并在 PATH 中：
+  ```bash
+  curl -fsSL https://opencode.ai/install | bash
+  ```
+- **可选：`openclaw`** —— 备选引擎，通过 `aim oc` 一键切换（见上文）。
+
+### 推荐：直接下载 TSAI-OS
+
+本仓库原为 TSAI-OS 操作系统内置组件，建议直接下载 **TSAI-OS 镜像**获得开箱即用的
+AI 体验（依赖与模型均已预装）：👉 **https://lugui906.github.io/chin**
 
 ## 许可证
 

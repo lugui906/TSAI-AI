@@ -55,6 +55,31 @@ TSAI-OS 相关 AI 项目集合，全部为独立子项目，统一采用 `kebab-
 | `web-ai-server` | Web AI 服务器（Flask 局域网聊天 + OCR + 定时） | Python/Flask | [README](web-ai-server/README.md) |
 | `aim-knowledge` | AIM 知识库客户端（目录内文件问答） | Python/GTK3 | [README](aim-knowledge/README.md) |
 
+## 运行依赖
+
+本仓库所有 AI 项目都通过 `aim` CLI 与 AI 引擎通信，**核心依赖 `opencode`**：
+
+| 引擎 | 依赖级别 | 说明 |
+|---|---|---|
+| `opencode` | **必需** | 默认 AI 引擎，`aim` 的所有推理/执行委托给它，必须安装并在 PATH 中 |
+| `openclaw` | **可选** | 备选引擎，`aim oc` 一键切换后替代 opencode（见 ai-hub 文档） |
+
+```bash
+# 必需：安装 opencode（默认引擎）
+curl -fsSL https://opencode.ai/install | bash
+
+# 可选：切换到 openclaw 引擎（需先安装 openclaw）
+aim oc            # 切到 openclaw
+aim oc default    # 切回 opencode
+```
+
+## 推荐：直接下载 TSAI-OS 操作系统
+
+本仓库原为 TSAI-OS 操作系统内置组件。**建议直接下载 TSAI-OS 镜像**，即可获得
+开箱即用的更先进 AI 体验——所有依赖（opencode、模型、手势、桌面控制等）均已预装配置：
+
+👉 **https://lugui906.github.io/chin**
+
 ## 共享基础设施
 
 | 二进制 | 用途 | 依赖它的项目 |

@@ -15,12 +15,13 @@ import cv2
 import numpy as np
 
 sys.path.insert(0, ".")
+from tsai_airgestured import MODEL_DIR
 from tsai_airgestured.inference import OpenCVTfliteBackend
 from tsai_airgestured.camera import Frame
 
 
 def main() -> None:
-    backend = OpenCVTfliteBackend("/usr/share/tsai-airgestured/models")
+    backend = OpenCVTfliteBackend(MODEL_DIR)
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
         print("ERROR: cannot open /dev/video0")

@@ -11,14 +11,20 @@
 * 全参数可配置化 + 热重载；桌面顶栏状态提示 + GTK4 系统设置面板。
 """
 
+import os
+
 __version__ = "1.0.0"
 __author__ = "TSAI-OS"
-__license__ = "Apache-2.0"
+__license__ = "GPL-3.0"
 
-# 模型固定部署路径（与系统镜像约定一致）
-MODEL_DIR = "/usr/share/tsai-airgestured/models"
+# 模型部署路径：优先环境变量 TSAI_MODEL_DIR，其次仓库内 models/，
+# 最后系统部署路径（与系统镜像约定一致）
+_REPO_MODEL_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "models")
+MODEL_DIR = os.environ.get("TSAI_MODEL_DIR") or (
+    _REPO_MODEL_DIR if os.path.isdir(_REPO_MODEL_DIR) else "/usr/share/tsai-airgestured/models"
+)
 # 全局配置文件路径
-CONFIG_PATH = "/etc/tsai-airgestured.conf"
+CONFIG_PATH = os.environ.get("TSAI_CONFIG_PATH") or "/etc/tsai-airgestured.conf"
 # DBus 自定义状态接口总线名
 DBUS_NAME = "org.tsaios.airgesture"
 DBUS_PATH = "/org/tsaios/airgesture"

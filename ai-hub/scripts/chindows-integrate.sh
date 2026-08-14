@@ -2,7 +2,7 @@
 # Chindows AIM 2.0 integration script
 # Installs AIM binary and systemd service
 
-CUSTOM_ROOT="${CUSTOM_ROOT:-/home/show/4/custom-root}"
+CUSTOM_ROOT="${CUSTOM_ROOT:-/}"
 SERVICE_NAME="aim.service"
 PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 

@@ -4,4 +4,5 @@
 if pgrep -f 'main[.]py --lo' >/dev/null 2>&1; then
     exit 0
 fi
-nohup python3 /opt/aps/main.py --lo >/tmp/lo-aps-companion.log 2>&1 &
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+nohup python3 "$ROOT/main.py" --lo >/tmp/lo-aps-companion.log 2>&1 &

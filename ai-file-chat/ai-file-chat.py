@@ -13,6 +13,7 @@ import queue
 import socket
 import threading
 import subprocess
+import shutil
 
 try:
     import gi
@@ -24,7 +25,7 @@ except ImportError:
     sys.stderr.write("Error: PyGObject required. sudo apt install python3-gi gir1.2-gtk-3.0\n")
     sys.exit(1)
 
-AIM_BIN = "/usr/bin/aim"
+AIM_BIN = os.environ.get("AIM_BIN") or shutil.which("aim") or "/usr/bin/aim"
 SOCKET_PATH = "/tmp/ai-file-chat.sock"
 WINDOW_WIDTH = 460
 

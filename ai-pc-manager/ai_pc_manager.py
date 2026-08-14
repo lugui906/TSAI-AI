@@ -1159,7 +1159,7 @@ class StartupPanel(Gtk.Box):
         self.store.clear()
         
         items = [
-            ("AI电脑管家", "/home/show/mgr/main.py", "已启用", "用户"),
+            ("AI电脑管家", os.path.join(os.path.dirname(os.path.abspath(__file__)), "main.py"), "已启用", "用户"),
             ("终端", "/usr/bin/gnome-terminal", "已启用", "系统"),
             ("文件管理器", "/usr/bin/nautilus", "已禁用", "用户"),
             ("浏览器", "/usr/bin/firefox", "已启用", "用户"),

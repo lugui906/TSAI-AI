@@ -2,7 +2,7 @@
 import os
 import sys
 
-os.chdir(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "lib", "aai"))
-sys.path.insert(0, os.getcwd())
+_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, _ROOT)
 
-exec(open("main.py").read())
+exec(open(os.path.join(_ROOT, "main.py")).read())

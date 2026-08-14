@@ -175,6 +175,10 @@ make test       # 运行测试
 
 依赖：Go 1.22+，无需其他外部依赖。运行时依赖 `opencode` CLI（默认）或 `openclaw`。
 
+## 许可证
+
+GPL-3.0，详见根目录 [LICENSE](../../LICENSE)。
+
 ## 已知半成品痕迹
 
 - `internal/server` 的 `/v1/chat` 目前是 echo 桩，未真正对接后端推理。

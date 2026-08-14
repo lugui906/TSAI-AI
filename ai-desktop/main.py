@@ -11,6 +11,7 @@ import sys
 import threading
 import time
 import errno
+import shutil
 
 try:
     import gi
@@ -23,7 +24,7 @@ except ImportError:
 # ---------------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------------
-AIM_BIN = '/usr/bin/aim'
+AIM_BIN = os.environ.get("AIM_BIN") or shutil.which("aim") or '/usr/bin/aim'
 SESSION_FILE = os.path.expanduser('/tmp/doubao-gtk-session.txt')
 
 # 超时配置常量

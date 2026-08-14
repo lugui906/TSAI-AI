@@ -4,6 +4,8 @@
 基于 OpenCV 采帧 + 双 TFLite 手部模型（INT8），以 systemd 用户服务运行于
 wlroots Wayland 桌面。当前只保留一个手势：**手掌前推 → 媒体播放/暂停**。
 
+> GPL-3.0 许可，详见根目录 LICENSE。
+
 ## 核心特性
 
 - 全离线本地推理：`palm_detection_lite` + `hand_landmark_lite` 双模型，

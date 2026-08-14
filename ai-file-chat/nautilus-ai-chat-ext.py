@@ -7,12 +7,13 @@ Nautilus 扩展：在文件管理器右键菜单集成 AI 对话入口。
 - 后端：aim newrun <内容> <选中路径> / aim run <内容> <选中路径>
 """
 import os
+import shutil
 import subprocess
 
 from gi import require_version
 from gi.repository import Nautilus, GObject
 
-CHAT_APP = "/usr/local/bin/ai-file-chat"
+CHAT_APP = os.environ.get("AI_FILE_CHAT_BIN") or shutil.which("ai-file-chat") or "/usr/local/bin/ai-file-chat"
 
 
 class AIFileChatExtension(Nautilus.MenuProvider, GObject.GObject):

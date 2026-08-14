@@ -7,7 +7,7 @@
 #   ./scripts/deploy_models.sh --download     从官方发布下载（需网络）
 set -euo pipefail
 
-DEST=/usr/share/tsai-airgestured/models
+DEST="${TSAI_MODEL_DIR:-/usr/share/tsai-airgestured/models}"
 PALM=palm_detection_lite.tflite
 LAND=hand_landmark_lite.tflite
 # MediaPipe legacy 官方模型地址（mediapipe-assets 桶，Apache-2.0）

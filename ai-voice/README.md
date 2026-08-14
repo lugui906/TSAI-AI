@@ -54,12 +54,12 @@ python3 main.py
 
 | 常量 | 说明 |
 |---|---|
-| `MODEL_ROOT` | 模型根目录（默认硬编码 `/usr/chindows/aai/share/models`） |
+| `MODEL_ROOT` | 模型根目录（优先环境变量 `AIM_MODEL_ROOT` → 仓库内 `share/models` → 回退旧部署路径） |
 | `SAMPLE_RATE / CHUNK` | 16000Hz / 960 字节块 |
 | `VAD_MODE / 帧阈值` | VAD 灵敏度与起止判定帧数 |
 | `MIN/MAX_RECORD_SEC` | 录音长度限制（0.8s–30s） |
 | `TTS_COOLDOWN` | 播报后冷却 2s |
 | `BLOCKED_PHRASES` | 误识别黑名单词过滤 |
 
-> 注意：`bin/voice-assistant` 启动脚本与 `MODEL_ROOT` 均指向部署路径
-> `/usr/chindows/aai/...`，仓库内直接运行需调整。
+> 提示：`bin/voice-assistant` 启动脚本已改为相对仓库根解析；模型路径支持
+> 环境变量 `AIM_MODEL_ROOT` 覆盖，仓库内直接运行 `python3 main.py` 即可。

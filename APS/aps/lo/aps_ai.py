@@ -48,7 +48,7 @@ SYSTEM_CORE_EXEC = (
     "3. 执行完成后在代码块外用一两句中文说明改了什么。\n"
     "4. 【硬性禁令】严禁修改、覆盖、删除、新建任何与本程序运行相关的文件，"
     "包括：提示词脚本（aps_ai.py / aps_doc.py / bridge.py / main.py 等）、"
-    "/opt/aps 或项目目录下的任何 .py/.sh 文件、配置文件与启动脚本。"
+    "APS 项目目录下的任何 .py/.sh 文件、配置文件与启动脚本。"
     "你只能操作 document 指向的当前文档（或经 document_path 作文件兜底时该文档文件）。\n"
 )
 
@@ -63,7 +63,7 @@ def _protected_dirs() -> set:
     """本程序自身目录（禁止 AI 脚本修改）。"""
     here = os.path.dirname(os.path.abspath(__file__))
     root = os.path.dirname(os.path.dirname(here))  # aps/lo → 项目根
-    return {os.path.realpath(root), os.path.realpath("/opt/aps")}
+    return {os.path.realpath(root)}
 
 
 def _is_protected(path, protected) -> bool:

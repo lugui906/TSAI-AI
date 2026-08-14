@@ -22,8 +22,12 @@ _THREADS = 4
 
 # Model paths tried in order of preference (better accuracy first). The first
 # existing file is used. Falls back to the base model if no larger one exists.
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_MODEL_ROOT = os.environ.get("AIM_MODEL_ROOT", "/usr/chindows/aai/share/models")
 MODEL_CANDIDATES = [
-    "/usr/chindows/aai/share/models/small/ggml-small.bin",
+    os.path.join(_MODEL_ROOT, "small", "ggml-small.bin"),
+    os.path.join(_REPO_ROOT, "..", "ai-voice", "share", "models", "small", "ggml-small.bin"),
+    os.path.join(_REPO_ROOT, "..", "ai-voice", "share", "models", "base", "ggml-base.bin"),
     "/usr/local/share/ai-subtitle/models/ggml-base.bin",
     "/usr/local/share/ai-subtitle/models/base/ggml-base.bin",
 ]

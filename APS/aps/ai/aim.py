@@ -8,11 +8,13 @@
 
 本模块只依赖标准库，不依赖 GTK / UNO，可在任何 Python 环境运行。
 """
+import os
 import re
+import shutil
 import subprocess
 import threading
 
-AIM_BIN = "/usr/bin/aim"
+AIM_BIN = os.environ.get("AIM_BIN") or shutil.which("aim") or "/usr/bin/aim"
 ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 
 

@@ -3,6 +3,13 @@
 TSAI-OS 相关 AI 项目集合，全部为独立子项目，统一采用 `kebab-case` 命名
 （`APS` 为产品名，按原名保留）。
 
+## 许可证
+
+本项目采用 **GPL-3.0** 许可证，详见 [LICENSE](LICENSE)。
+
+> 本项目原为 TSAI-OS 系统内部组件，现已开源。代码中的部署路径已改为动态解析
+> （相对路径 / `shutil.which` / 环境变量），便于在任意环境运行。
+
 ## 整体架构
 
 ```
@@ -61,8 +68,9 @@ TSAI-OS 相关 AI 项目集合，全部为独立子项目，统一采用 `kebab-
 
 ## 部署约定
 
-- 各子项目独立运行，源码形态见各目录；部分项目硬编码了部署路径（如
-  `/usr/chindows/...`、`/usr/bin/aim`、`/usr/local/bin/tine`），仓库内直接运行前需按本机调整。
-- 安装布局：`ai-voice` 部署在 `/usr/chindows/aai/`，`meeting-summary*` 转写模型复用
-  `/usr/chindows/aai/share/models/`，`gesture-control` 安装为 systemd 用户服务。
-- 本地模型文件（约 1.1GB，`ai-voice/share/models/`）已被 `.gitignore` 排除，不随仓库分发。
+- 各子项目独立运行，源码形态见各目录。`aim`/`opencode` 等外部命令均通过 `shutil.which`
+  或 PATH 动态解析；模型路径优先环境变量（`AIM_MODEL_ROOT`、`TSAI_MODEL_DIR`），
+  其次仓库内相对路径，最后回退到原 TSAI-OS 部署路径。
+- `gesture-control` 安装为 systemd 用户服务（`install.sh`）。
+- 本地模型文件（约 1.1GB，`ai-voice/share/models/`）已被 `.gitignore` 排除，不随仓库分发；
+  可设置 `AIM_MODEL_ROOT` 指向已有模型目录。

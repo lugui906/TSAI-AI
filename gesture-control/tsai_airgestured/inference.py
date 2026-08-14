@@ -4,7 +4,8 @@
   * ``palm_detection_lite.tflite``：手掌检测（SLEEP/闻言运行，低分辨率 5FPS）
   * ``hand_landmark_lite.tflite``：21 点手部关键点（WAKE/高分辨率 30FPS）
 
-模型固定部署于 ``/usr/share/tsai-airgestured/models``，禁止在线下载。
+模型默认部署于 ``/usr/share/tsai-airgestured/models``（可用环境变量 ``TSAI_MODEL_DIR``
+覆盖，或放入仓库内 ``models/`` 目录），禁止在线下载。
 
 后端抽象
 --------

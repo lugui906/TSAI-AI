@@ -2,6 +2,7 @@
 import subprocess
 import threading
 import re
+import shutil
 
 import gi
 gi.require_version("Gtk", "3.0")
@@ -10,7 +11,7 @@ from gi.repository import Gtk, GLib
 from aim.config import ensure_dirs
 from aim.agent import list_agents, get_agent, save_agent, delete_agent
 
-AIM_CMD = "/bin/aim"
+AIM_CMD = shutil.which("aim") or "/usr/bin/aim"
 
 
 def _run_aim(args, stdin_text):
@@ -21,7 +22,7 @@ def _run_aim(args, stdin_text):
     except subprocess.TimeoutExpired:
         return "", "超时", -1
     except FileNotFoundError:
-        return "", "找不到 /bin/aim", -1
+        return "", f"找不到 {AIM_CMD}", -1
 
 
 def _parse_conv_id(stdout):

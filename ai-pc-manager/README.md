@@ -49,4 +49,4 @@ AI 功能依赖 `aim` CLI（否则回退 ollama llama3）；多数优化命令�
 ## 已知问题
 
 - `StartupPanel` 的启动项数据是硬编码示例列表，启/禁用按钮未接实际逻辑。
-- `run_optimize.py` 硬编码了旧机器路径 `/home/show/mgr`，已过时。
+- `run_optimize.py` 为无 GUI 调试脚本（路径已改为相对项目目录解析）。

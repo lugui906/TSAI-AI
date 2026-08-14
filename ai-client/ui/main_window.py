@@ -719,7 +719,13 @@ class MainWindow(Gtk.ApplicationWindow):
                 ui_msg("语音: 录音失败（未找到 arecord）")
                 return
             ui_msg("语音: 已录制 5 秒，正在识别...")
-            model_path = "/usr/share/chinai2/models/tiny"
+            _candidates = [
+                os.environ.get("AIM_MODEL_ROOT"),
+                os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                             "..", "ai-voice", "share", "models", "faster-small"),
+                "/usr/share/chinai2/models/tiny",
+            ]
+            model_path = next((p for p in _candidates if p and os.path.isdir(p)), "/usr/share/chinai2/models/tiny")
             model = WhisperModel(model_path, device="cpu", compute_type="int8")
             segments, _ = model.transcribe(wav_path, language="zh")
             text = "".join(seg.text for seg in segments).strip()

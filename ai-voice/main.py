@@ -18,7 +18,12 @@ from gi.repository import Gtk, GLib
 
 
 # ==========模型路径选择逻辑==========
-MODEL_ROOT = "/usr/chindows/aai/share/models"
+# 优先使用环境变量 AIM_MODEL_ROOT，其次仓库内 share/models，最后旧部署路径
+_DEFAULT_MODEL_ROOT = "/usr/chindows/aai/share/models"
+_REPO_MODEL_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "share", "models")
+MODEL_ROOT = os.environ.get("AIM_MODEL_ROOT", "")
+if not MODEL_ROOT or not os.path.isdir(MODEL_ROOT):
+    MODEL_ROOT = _REPO_MODEL_ROOT if os.path.isdir(_REPO_MODEL_ROOT) else _DEFAULT_MODEL_ROOT
 candidate_models = [
     os.path.join(MODEL_ROOT, "small"),
     os.path.join(MODEL_ROOT, "faster-small"),
@@ -32,7 +37,10 @@ for path in candidate_models:
         break
 
 if MODEL_DIR is None:
-    raise FileNotFoundError("未找到可用faster-whisper模型，请检查 /usr/chindows/aai/share/models")
+    raise FileNotFoundError(
+        f"未找到可用faster-whisper模型，请检查 {MODEL_ROOT} "
+        f"（可用环境变量 AIM_MODEL_ROOT 指定模型目录）"
+    )
 
 # 初始化模型
 model = WhisperModel(

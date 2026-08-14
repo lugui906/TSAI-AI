@@ -18,6 +18,7 @@ from __future__ import annotations
 import configparser
 import os
 import signal
+import sys
 import subprocess
 import sys
 
@@ -37,7 +38,7 @@ APP_ID = "org.tsaios.airgesture.settings"
 
 # 安装根（本文件位于 <root>/panel/），由此定位守护进程入口，与安装位置无关
 APP_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DAEMON_CMD = ["/usr/bin/python3", os.path.join(APP_ROOT, "tools", "tsai-airgestured")]
+DAEMON_CMD = [sys.executable or "python3", os.path.join(APP_ROOT, "tools", "tsai-airgestured")]
 _RUN_DIR = os.environ.get("XDG_RUNTIME_DIR") or "/tmp"
 PID_FILE = os.path.join(_RUN_DIR, "tsai-airgestured.pid")
 LOG_FILE = os.path.join(_RUN_DIR, "tsai-airgestured.log")

@@ -1,7 +1,8 @@
 BINARY=aim
 BUILD_DIR=build
 GO_FLAGS=-ldflags="-s -w"
-CUSTOM_ROOT=/home/show/4/custom-root
+PREFIX ?= /usr/local
+SYSTEMD_DIR ?= /etc/systemd/system
 
 .PHONY: all build clean install uninstall run test lint tidy
 
@@ -12,17 +13,17 @@ build:
 	go build -o $(BUILD_DIR)/$(BINARY) $(GO_FLAGS) .
 
 install: build
-	@echo "=== Installing $(BINARY) to $(CUSTOM_ROOT) ==="
-	install -Dm755 $(BUILD_DIR)/$(BINARY) $(CUSTOM_ROOT)/usr/bin/$(BINARY)
-	install -Dm644 scripts/aim.service $(CUSTOM_ROOT)/etc/systemd/system/aim.service
-	install -Dm755 scripts/chindows-integrate.sh $(CUSTOM_ROOT)/usr/local/lib/aim/chindows-integrate.sh
+	@echo "=== Installing $(BINARY) to $(PREFIX) ==="
+	install -Dm755 $(BUILD_DIR)/$(BINARY) $(PREFIX)/bin/$(BINARY)
+	install -Dm644 scripts/aim.service $(SYSTEMD_DIR)/aim.service
+	install -Dm755 scripts/chindows-integrate.sh $(PREFIX)/lib/aim/chindows-integrate.sh
 	@echo "Done. Installed binary, systemd service, and integration script."
 
 uninstall:
-	rm -f $(CUSTOM_ROOT)/usr/bin/$(BINARY)
-	rm -f $(CUSTOM_ROOT)/etc/systemd/system/aim.service
-	rm -f $(CUSTOM_ROOT)/usr/local/lib/aim/chindows-integrate.sh
-	@echo "Uninstalled from $(CUSTOM_ROOT)"
+	rm -f $(PREFIX)/bin/$(BINARY)
+	rm -f $(SYSTEMD_DIR)/aim.service
+	rm -f $(PREFIX)/lib/aim/chindows-integrate.sh
+	@echo "Uninstalled from $(PREFIX)"
 
 run: build
 	./$(BUILD_DIR)/$(BINARY)

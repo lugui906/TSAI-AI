@@ -1,5 +1,6 @@
+import os
 import sys
-sys.path.insert(0, '/home/show/mgr')
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from ai_pc_manager import AIManager
 import threading
 import time

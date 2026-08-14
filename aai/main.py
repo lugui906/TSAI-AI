@@ -1,0 +1,519 @@
+import numpy as np
+import os
+import re
+import signal
+import subprocess
+import threading
+import queue
+import contextlib
+import tempfile
+import time
+import webrtcvad
+from faster_whisper import WhisperModel
+
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk, GLib
+
+
+
+# ==========模型路径选择逻辑==========
+MODEL_ROOT = "/usr/chindows/aai/share/models"
+candidate_models = [
+    os.path.join(MODEL_ROOT, "small"),
+    os.path.join(MODEL_ROOT, "faster-small"),
+    os.path.join(MODEL_ROOT, "base")
+]
+
+MODEL_DIR = None
+for path in candidate_models:
+    if os.path.exists(os.path.join(path, "model.bin")):
+        MODEL_DIR = path
+        break
+
+if MODEL_DIR is None:
+    raise FileNotFoundError("未找到可用faster-whisper模型，请检查 /usr/chindows/aai/share/models")
+
+# 初始化模型
+model = WhisperModel(
+    MODEL_DIR,
+    device="cpu",
+    compute_type="int8",
+    local_files_only=True
+)
+
+SAMPLE_RATE = 16000
+CHUNK = 960
+VAD_FRAME_SIZE = 480
+CHANNELS = 1
+VAD_MODE = 3
+VAD_SPEECH_FRAMES = 6
+VAD_SILENCE_FRAMES = 10
+VAD_END_RMS_FRAMES = 5
+MIN_AUDIO_LEN = 0.8
+MAX_RECORD_SEC = 30.0
+TTS_COOLDOWN = 2.0
+BLOCKED_PHRASES = ["字幕製作", "字幕制作", "字幕", "貝爾", "贝尔"]
+
+model = WhisperModel(MODEL_DIR, device="cpu", compute_type="int8")
+speaking_event = threading.Event()
+last_speak_time = 0
+last_tts_text = ""
+
+
+class MicrophoneManager:
+    def __init__(self):
+        self.sample_rate = SAMPLE_RATE
+        self.chunk = CHUNK
+        self.vad_frame_size = VAD_FRAME_SIZE
+        self.vad_mode = VAD_MODE
+        self.vad_speech_frames = VAD_SPEECH_FRAMES
+        self.vad_silence_frames = VAD_SILENCE_FRAMES
+        self.min_audio_len = MIN_AUDIO_LEN
+        
+        self.vad = webrtcvad.Vad(self.vad_mode)
+        self.sample_width = 2
+        self.bytes_per_chunk = self.chunk * self.sample_width
+        self.vad_frame_bytes = self.vad_frame_size * self.sample_width
+        
+        self.devices = []
+        self._detect_devices()
+        
+        self._proc = None
+        self.device = self.devices[0] if self.devices else "default"
+        print(f"麦克风设备: {self.device}", flush=True)
+    
+    def _detect_devices(self):
+        self.devices = ["plughw:0,0"]
+        print(f"设备: {self.devices}", flush=True)
+    
+    def test_mic(self, test_seconds=2.0):
+        print("\n=== 麦克风测试 ===", flush=True)
+        for device in self.devices:
+            try:
+                proc = subprocess.Popen(
+                    ["arecord", "-D", device, "-f", "S16_LE", "-r", str(self.sample_rate),
+                     "-c", str(CHANNELS), "-t", "raw"],
+                    stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                    bufsize=self.bytes_per_chunk
+                )
+            except:
+                continue
+            
+            try:
+                total_data = b''
+                deadline = time.time() + test_seconds
+                while time.time() < deadline:
+                    try:
+                        chunk = proc.stdout.read(self.bytes_per_chunk)
+                        if chunk:
+                            total_data += chunk
+                    except:
+                        break
+                
+                proc.terminate()
+                proc.wait(timeout=2)
+            except:
+                proc.kill()
+            
+            if len(total_data) > 0:
+                audio_int = np.frombuffer(total_data, dtype=np.int16)
+                rms = np.sqrt(np.mean(audio_int.astype(float)**2))
+                status = "✓ 正常" if rms > 50 else "⚠ 音量极低"
+                print(f"  [{device}] {status} (RMS={rms:.0f})", flush=True)
+                if rms > 50:
+                    print(f"  → 使用设备: {device}\n", flush=True)
+                    self.device = device
+                    return True
+            else:
+                print(f"  [{device}] ✗ 无数据", flush=True)
+        
+        print("  ✗ 所有麦克风设备均无法使用", flush=True)
+        if self.devices:
+            self.device = self.devices[0]
+            print(f"  → 强制使用: {self.device}\n", flush=True)
+            return True
+        return False
+    
+    def _is_speech(self, data):
+        return any(
+            self.vad.is_speech(data[i:i+self.vad_frame_bytes], self.sample_rate)
+            for i in range(0, len(data), self.vad_frame_bytes)
+        )
+    
+    def record(self):
+        if self._proc is not None:
+            self._cleanup()
+        
+        for idx, device in enumerate(self.devices):
+            print(f"尝试打开麦克风设备 [{idx+1}/{len(self.devices)}]: {device}", flush=True)
+            
+            try:
+                self._proc = subprocess.Popen(
+                    ["arecord", "-D", device, "-f", "S16_LE", "-r", str(self.sample_rate),
+                     "-c", str(CHANNELS), "-t", "raw"],
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                    bufsize=self.bytes_per_chunk
+                )
+            except Exception as e:
+                print(f"arecord 启动失败: {e}", flush=True)
+                self._cleanup()
+                continue
+            
+            print("麦克风已打开, 等待语音...", flush=True)
+            
+            frames = []
+            speech_count = 0
+            silence_count = 0
+            started = False
+            device_worked = False
+            rms_history = []
+            
+            try:
+                record_start = time.time()
+                while True:
+                    if self._proc is None or speaking_event.is_set():
+                        break
+                    
+                    if started and time.time() - record_start > MAX_RECORD_SEC:
+                        print(f"录音超时({MAX_RECORD_SEC}秒), 强制结束", flush=True)
+                        break
+                    
+                    try:
+                        data = self._proc.stdout.read(self.bytes_per_chunk)
+                    except Exception as e:
+                        print(f"读取音频数据失败: {e}", flush=True)
+                        break
+                    
+                    if len(data) < self.bytes_per_chunk:
+                        if self._proc:
+                            stderr = self._proc.communicate()[1].decode('utf-8', errors='ignore')
+                            if stderr:
+                                print(f"arecord 错误输出: {stderr}", flush=True)
+                        break
+                    
+                    if self._is_speech(data):
+                        speech_count += 1
+                        silence_count = 0
+                        if speech_count >= self.vad_speech_frames and not started:
+                            audio_int = np.frombuffer(data, dtype=np.int16)
+                            rms = np.sqrt(np.mean(audio_int.astype(float)**2))
+                            if rms < 200:
+                                print(f"忽略低音量语音(RMS={rms:.0f})", flush=True)
+                                speech_count = 0
+                                continue
+                            started = True
+                            record_start = time.time()
+                            device_worked = True
+                            print("检测到语音, 开始录音...", flush=True)
+                        if started:
+                            audio_int = np.frombuffer(data, dtype=np.int16)
+                            rms = np.sqrt(np.mean(audio_int.astype(float)**2))
+                            rms_history.append(rms)
+                            if len(rms_history) > VAD_END_RMS_FRAMES:
+                                rms_history.pop(0)
+                            frames.append(data)
+                    elif started:
+                        frames.append(data)
+                        silence_count += 1
+                        need_silence = self.vad_silence_frames
+                        if len(rms_history) >= VAD_END_RMS_FRAMES:
+                            trend = rms_history[-1] - rms_history[0]
+                            if trend < -20:
+                                need_silence = max(3, need_silence // 2)
+                                print(f"  句尾下降(trend={trend:.0f}), 静音阈值={need_silence}", flush=True)
+                        if silence_count >= need_silence:
+                            print("语音结束", flush=True)
+                            break
+            finally:
+                self._cleanup()
+            
+            min_frames = int(self.sample_rate / self.chunk * self.min_audio_len + 0.5)
+            if len(frames) >= min_frames:
+                audio_int = np.frombuffer(b''.join(frames), dtype=np.int16)
+                audio = audio_int.astype(np.float32) / 32768.0
+                print(f"录音完成, 时长: {len(audio) / self.sample_rate:.2f}秒", flush=True)
+                self.device = device
+                return audio
+            
+            if device_worked:
+                self.device = device
+            
+            print(f"设备 {device} 未检测到有效语音, 尝试下一个设备", flush=True)
+        
+        print("所有设备均无法正常工作", flush=True)
+        return None
+    
+    def _cleanup(self):
+        if self._proc is not None:
+            try:
+                self._proc.stdout.close()
+            except:
+                pass
+            try:
+                self._proc.stderr.close()
+            except:
+                pass
+            try:
+                self._proc.terminate()
+                self._proc.wait(timeout=2)
+            except Exception:
+                try:
+                    self._proc.kill()
+                    self._proc.wait(timeout=2)
+                except Exception:
+                    pass
+            self._proc = None
+    
+    def __del__(self):
+        self._cleanup()
+
+
+@contextlib.contextmanager
+def silence_alsa():
+    old_fd = os.dup(2)
+    devnull = os.open(os.devnull, os.O_WRONLY)
+    os.dup2(devnull, 2)
+    os.close(devnull)
+    try:
+        yield
+    finally:
+        os.dup2(old_fd, 2)
+        os.close(old_fd)
+
+
+PW_CAPTURE_ID = None
+
+def _find_pw_capture_id():
+    global PW_CAPTURE_ID
+    if PW_CAPTURE_ID is not None:
+        return PW_CAPTURE_ID
+    try:
+        r = subprocess.run(["pw-cli", "list-objects", "Node"], capture_output=True, text=True, timeout=5)
+        lines = r.stdout.splitlines()
+        current_id = None
+        has_alsa = False
+        for line in lines:
+            m = re.match(r'id (\d+),', line.strip())
+            if m:
+                current_id = m.group(1)
+                has_alsa = False
+            if 'alsa_input' in line:
+                has_alsa = True
+            if current_id and 'Audio/Source' in line and has_alsa:
+                PW_CAPTURE_ID = current_id
+                return PW_CAPTURE_ID
+    except:
+        pass
+    return None
+
+def mute_mic(mute=True):
+    sid = _find_pw_capture_id()
+    if sid:
+        vol = "0.0" if mute else "1.0"
+        subprocess.run(["wpctl", "set-volume", sid, vol], capture_output=True, timeout=5)
+    else:
+        vol = "0%" if mute else "100%"
+        subprocess.run(["amixer", "sset", "Capture", vol], capture_output=True, timeout=5)
+
+TTS_VOICE = "zh-CN-XiaoxiaoNeural"
+TTS_RATE = "-8%"
+
+
+def _tts_generate_edge(text, tmp_mp3):
+    import asyncio
+    import edge_tts
+    async def _run():
+        communicate = edge_tts.Communicate(text, TTS_VOICE, rate=TTS_RATE)
+        await communicate.save(tmp_mp3)
+    asyncio.run(_run())
+
+
+def speak(text):
+    global last_tts_text
+    last_tts_text = text
+    def _speak():
+        global last_speak_time
+        is_first = True
+        tmp_mp3 = ""
+        tmp_wav = ""
+        with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as f:
+            tmp_mp3 = f.name
+        tmp_wav = tmp_mp3.replace('.mp3', '.wav')
+        try:
+            speaking_event.set()
+            try:
+                _tts_generate_edge(text, tmp_mp3)
+                subprocess.run(
+                    ["ffmpeg", "-y", "-loglevel", "error", "-i", tmp_mp3, tmp_wav],
+                    capture_output=True, timeout=60
+                )
+                player = ["aplay", tmp_wav]
+            except Exception as e:
+                print(f"edge-tts 失败, 回退到 espeak-ng: {e}")
+                tmp_wav = tmp_mp3.replace('.mp3', '.wav')
+                subprocess.run(
+                    ["espeak-ng", "-v", "cmn", "-s", "150", text, "-w", tmp_wav],
+                    capture_output=True, timeout=30
+                )
+                player = ["aplay", tmp_wav]
+            mute_mic(True)
+            subprocess.run(player, capture_output=True, timeout=60)
+        except Exception as e:
+            print(f"TTS error: {e}")
+        finally:
+            print("TTS播放完毕, 静默2秒...", flush=True)
+            time.sleep(2.0)
+            mute_mic(False)
+            last_speak_time = time.time()
+            speaking_event.clear()
+            print("解锁麦克风", flush=True)
+            for p in (tmp_mp3, tmp_wav):
+                try:
+                    os.unlink(p)
+                except:
+                    pass
+    threading.Thread(target=_speak, daemon=True).start()
+
+
+class AimWindow:
+    def __init__(self):
+        self.window = Gtk.Window(title="语音助手")
+        self.window.set_default_size(500, 350)
+        self.window.set_position(Gtk.WindowPosition.CENTER)
+        self.window.connect("destroy", Gtk.main_quit)
+
+        scrolled = Gtk.ScrolledWindow()
+        scrolled.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+
+        self.textview = Gtk.TextView()
+        self.textview.set_editable(False)
+        self.textview.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
+        self.textbuffer = self.textview.get_buffer()
+        scrolled.add(self.textview)
+        self.window.add(scrolled)
+
+        self.output_queue = queue.Queue()
+        self.shown = False
+        GLib.timeout_add(100, self.poll_output)
+
+    def poll_output(self):
+        try:
+            while True:
+                text = self.output_queue.get_nowait()
+                end_iter = self.textbuffer.get_end_iter()
+                self.textbuffer.insert(end_iter, text)
+                adj = self.textview.get_parent().get_vadjustment()
+                if adj:
+                    adj.set_value(adj.get_upper() - adj.get_page_size())
+        except queue.Empty:
+            pass
+        return True
+
+    def append(self, text):
+        self.output_queue.put(text)
+
+    def show_window(self):
+        if not self.shown:
+            self.shown = True
+            self.window.show_all()
+            self.window.present()
+
+
+def run_aim(prompt_text, window):
+    window.append(f"你：{prompt_text}\n\nAI：")
+
+    proc = subprocess.Popen(
+        ["aim", "run", prompt_text],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        bufsize=1
+    )
+
+    accumulated = []
+    for line in iter(proc.stdout.readline, ""):
+        window.append(line)
+        accumulated.append(line)
+
+    proc.wait()
+    window.append("\n---\n")
+
+    reply = "".join(accumulated).strip()
+    if reply:
+        speak(reply)
+    else:
+        window.append("\n")
+        speaking_event.clear()
+
+
+def audio_loop(window):
+    mic = MicrophoneManager()
+    print("音频循环已启动", flush=True)
+    
+    while True:
+        if speaking_event.is_set():
+            time.sleep(0.3)
+            continue
+
+        if time.time() - last_speak_time < TTS_COOLDOWN:
+            time.sleep(0.3)
+            continue
+
+        print("等待语音...", flush=True)
+        try:
+            audio = mic.record()
+        except Exception as e:
+            print(f"录音错误: {e}", flush=True)
+            time.sleep(1)
+            continue
+        if audio is None:
+            print("录音为空或失败, 重试", flush=True)
+            continue
+
+        print("录音结束, 锁定麦克风", flush=True)
+        speaking_event.set()
+
+        segments, _ = model.transcribe(audio, language="zh", beam_size=5)
+        full_text = "".join(seg.text for seg in segments).strip()
+
+        print(f"识别: {full_text}", flush=True)
+
+        if not full_text:
+            print("解锁麦克风: 空文本", flush=True)
+            speaking_event.clear()
+            continue
+
+        if any(p in full_text for p in BLOCKED_PHRASES):
+            print(f"忽略: 过滤掉 '{full_text}'", flush=True)
+            speaking_event.clear()
+            continue
+
+        if last_tts_text and len(full_text) > 3:
+            common = len(set(full_text) & set(last_tts_text))
+            if common / max(len(set(full_text)), 1) > 0.7:
+                print(f"忽略: TTS回声 '{full_text}'", flush=True)
+                speaking_event.clear()
+                continue
+
+        print("调用 aim, 锁定麦克风...", flush=True)
+        run_aim(full_text, window)
+        print("aim 返回, 麦克风仍锁定(等待TTS播放完成)", flush=True)
+
+
+def main():
+    window = AimWindow()
+    window.show_window()
+
+    print(f"WebRTC VAD 模式={VAD_MODE}, 开始监听 (faster-whisper small)", flush=True)
+
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+    t = threading.Thread(target=audio_loop, args=(window,), daemon=True)
+    t.start()
+
+    Gtk.main()
+
+
+if __name__ == "__main__":
+    main()

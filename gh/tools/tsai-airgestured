@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+"""tsai-airgestured 命令行入口。
+
+无论原地运行（仓库内）还是安装到 /usr/local/bin 均可：
+- 原地运行：将仓库根目录加入 sys.path 以导入 tsai_airgestured 包。
+- 已 pip 安装：直接使用已安装的包。
+"""
+
+import os
+import sys
+
+# 原地运行：tools/ 的上级（仓库根）加入 sys.path
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_ROOT = os.path.dirname(_HERE)
+if os.path.isdir(os.path.join(_ROOT, "tsai_airgestured")):
+    sys.path.insert(0, _ROOT)
+
+from tsai_airgestured.__main__ import main
+
+if __name__ == "__main__":
+    sys.exit(main())

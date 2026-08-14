@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+
+# Build artifacts
+build/
+dist/
+*.o
+*.bin
+
+# AI model files
+aai/share/models/
+
+# Binaries & packages
+aim/aim
+aim/build/
+*.apk
+
+# System / runtime
+.venv/
+venv/
+*.log

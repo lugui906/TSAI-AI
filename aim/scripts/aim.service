@@ -1,0 +1,14 @@
+[Unit]
+Description=AIM 2.0 - AI Intelligence Middleware
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/aim serve
+ExecStop=/usr/local/bin/aim serve --stop
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

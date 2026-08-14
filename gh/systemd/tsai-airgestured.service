@@ -1,0 +1,13 @@
+[Unit]
+Description=TSAI-OS Air Gesture Offline Service
+After=graphical-session.target
+
+[Service]
+Type=notify
+ExecStart=/usr/local/bin/tsai-airgestured
+Restart=on-failure
+RestartSec=2
+SupplementaryGroups=video
+
+[Install]
+WantedBy=graphical-session.target

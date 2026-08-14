@@ -1,0 +1,39 @@
+# TSAI-AI 模型清单
+#
+# 通过 scripts/download_models.py 拉取并校验 sha256。
+# url 留空表示需离线放置（见各子项目 README / ai-voice/share/models）。
+#
+# 环境变量 AIM_MODEL_ROOT 指向模型根目录后，ai-voice / meeting-summary*
+# / ai-client 会自动使用。
+
+models:
+  - name: whisper-faster-small
+    dir: faster-small
+    kind: whisper
+    desc: faster-whisper CTranslate2 模型（ai-voice 首选）
+    files:
+      - model.bin
+      - config.json
+      - tokenizer.json
+      - vocabulary.txt
+    size: 484000000
+    sha256: ""
+    url: ""
+
+  - name: whisper-small
+    dir: small
+    kind: whisper-ggml
+    desc: whisper.cpp ggml-small（转写回退模型）
+    files: [ggml-small.bin]
+    size: 488000000
+    sha256: ""
+    url: ""
+
+  - name: whisper-base
+    dir: base
+    kind: whisper-ggml
+    desc: whisper.cpp ggml-base（最低要求模型）
+    files: [ggml-base.bin]
+    size: 148000000
+    sha256: ""
+    url: ""

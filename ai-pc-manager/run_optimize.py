@@ -3,7 +3,6 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from ai_pc_manager import AIManager
 import threading
-import time
 import queue
 
 q = queue.Queue()

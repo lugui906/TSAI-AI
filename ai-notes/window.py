@@ -1,10 +1,10 @@
 import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Gdk", "4.0")
-from gi.repository import Gtk, Gdk, GLib, Gio, Pango
+from gi.repository import Gtk, GLib, Gio, Pango
 from pathlib import Path
 
-from editor import EditorPane, Document
+from editor import EditorPane
 from ai_panel import AiPanel
 
 

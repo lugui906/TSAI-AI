@@ -4,7 +4,7 @@
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, GLib, Pango
+from gi.repository import Gtk, Pango
 
 from aps.core.writer import WriterEngine
 
@@ -243,7 +243,6 @@ class WriterView(Gtk.Box):
             return
         text = self.buffer.get_text(self.buffer.get_start_iter(),
                                     self.buffer.get_end_iter(), False)
-        count = text.count(needle)
         self.buffer.set_text(text.replace(needle, repl))
         self.sync_to_engine()
         self.find_bar.set_visible(True)

@@ -1,10 +1,8 @@
 import subprocess
-import sys
 import time
 import logging
 import threading
 from datetime import datetime
-from typing import List
 
 from .models import Task
 from . import storage

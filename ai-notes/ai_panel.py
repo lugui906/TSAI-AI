@@ -1,7 +1,7 @@
 import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Gdk", "4.0")
-from gi.repository import Gtk, Gdk, Pango, GLib, GObject
+from gi.repository import Gtk, Gdk, GLib, GObject
 
 from aim_engine import AimSession
 import datetime
@@ -188,7 +188,6 @@ class AiPanel(Gtk.Box):
         self._debug_log.append((kind, msg))
         if not self._debug_visible:
             return
-        import datetime
         ts = datetime.datetime.now().strftime("%H:%M:%S")
         emoji = {"cmd": "⚡", "event": "📩", "done": "✅", "error": "❌", "session": "🔑", "pid": "🔢", "warn": "⚠️"}
         e = emoji.get(kind, "•")

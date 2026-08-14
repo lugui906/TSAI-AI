@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """主窗口：Ribbon + 视图 Stack + AI 面板 + 状态栏。"""
-import os
 
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, GLib, Gio, Pango
+from gi.repository import Gtk
 
 from aps.core.docmodel import Document, KINDS
 from aps.ui.ribbon import Ribbon
@@ -192,7 +191,6 @@ class MainWindow(Gtk.ApplicationWindow):
         if self.doc is None:
             return
         dlg = Gtk.FileDialog()
-        save = Gtk.FileChooserNative if hasattr(Gtk, "FileChooserNative") else None
         dlg.set_initial_name(f"未命名{self.doc.ext}")
         dlg.save(self, None, self._on_save_done)
 

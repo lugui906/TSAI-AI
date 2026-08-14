@@ -23,7 +23,7 @@ import numpy as np
 from typing import Callable, Optional
 
 from . import STATE_GESTURE, STATE_IDLE, STATE_SLEEP, STATE_WAKE
-from .camera import Camera, Frame
+from .camera import Camera
 from .config import Config
 from .filter import KalmanFilter
 from .gesture import GestureClassifier, GestureType

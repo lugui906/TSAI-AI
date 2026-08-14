@@ -1,6 +1,5 @@
 import argparse
 import sys
-from datetime import datetime
 
 from .models import Task
 from . import storage

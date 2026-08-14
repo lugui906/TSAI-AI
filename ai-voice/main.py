@@ -78,23 +78,23 @@ class MicrophoneManager:
         self.vad_speech_frames = VAD_SPEECH_FRAMES
         self.vad_silence_frames = VAD_SILENCE_FRAMES
         self.min_audio_len = MIN_AUDIO_LEN
-        
+
         self.vad = webrtcvad.Vad(self.vad_mode)
         self.sample_width = 2
         self.bytes_per_chunk = self.chunk * self.sample_width
         self.vad_frame_bytes = self.vad_frame_size * self.sample_width
-        
+
         self.devices = []
         self._detect_devices()
-        
+
         self._proc = None
         self.device = self.devices[0] if self.devices else "default"
         print(f"麦克风设备: {self.device}", flush=True)
-    
+
     def _detect_devices(self):
         self.devices = ["plughw:0,0"]
         print(f"设备: {self.devices}", flush=True)
-    
+
     def test_mic(self, test_seconds=2.0):
         print("\n=== 麦克风测试 ===", flush=True)
         for device in self.devices:
@@ -107,7 +107,7 @@ class MicrophoneManager:
                 )
             except:
                 continue
-            
+
             try:
                 total_data = b''
                 deadline = time.time() + test_seconds
@@ -118,12 +118,12 @@ class MicrophoneManager:
                             total_data += chunk
                     except:
                         break
-                
+
                 proc.terminate()
                 proc.wait(timeout=2)
             except:
                 proc.kill()
-            
+
             if len(total_data) > 0:
                 audio_int = np.frombuffer(total_data, dtype=np.int16)
                 rms = np.sqrt(np.mean(audio_int.astype(float)**2))
@@ -135,27 +135,27 @@ class MicrophoneManager:
                     return True
             else:
                 print(f"  [{device}] ✗ 无数据", flush=True)
-        
+
         print("  ✗ 所有麦克风设备均无法使用", flush=True)
         if self.devices:
             self.device = self.devices[0]
             print(f"  → 强制使用: {self.device}\n", flush=True)
             return True
         return False
-    
+
     def _is_speech(self, data):
         return any(
             self.vad.is_speech(data[i:i+self.vad_frame_bytes], self.sample_rate)
             for i in range(0, len(data), self.vad_frame_bytes)
         )
-    
+
     def record(self):
         if self._proc is not None:
             self._cleanup()
-        
+
         for idx, device in enumerate(self.devices):
             print(f"尝试打开麦克风设备 [{idx+1}/{len(self.devices)}]: {device}", flush=True)
-            
+
             try:
                 self._proc = subprocess.Popen(
                     ["arecord", "-D", device, "-f", "S16_LE", "-r", str(self.sample_rate),
@@ -167,39 +167,39 @@ class MicrophoneManager:
                 print(f"arecord 启动失败: {e}", flush=True)
                 self._cleanup()
                 continue
-            
+
             print("麦克风已打开, 等待语音...", flush=True)
-            
+
             frames = []
             speech_count = 0
             silence_count = 0
             started = False
             device_worked = False
             rms_history = []
-            
+
             try:
                 record_start = time.time()
                 while True:
                     if self._proc is None or speaking_event.is_set():
                         break
-                    
+
                     if started and time.time() - record_start > MAX_RECORD_SEC:
                         print(f"录音超时({MAX_RECORD_SEC}秒), 强制结束", flush=True)
                         break
-                    
+
                     try:
                         data = self._proc.stdout.read(self.bytes_per_chunk)
                     except Exception as e:
                         print(f"读取音频数据失败: {e}", flush=True)
                         break
-                    
+
                     if len(data) < self.bytes_per_chunk:
                         if self._proc:
                             stderr = self._proc.communicate()[1].decode('utf-8', errors='ignore')
                             if stderr:
                                 print(f"arecord 错误输出: {stderr}", flush=True)
                         break
-                    
+
                     if self._is_speech(data):
                         speech_count += 1
                         silence_count = 0
@@ -235,7 +235,7 @@ class MicrophoneManager:
                             break
             finally:
                 self._cleanup()
-            
+
             min_frames = int(self.sample_rate / self.chunk * self.min_audio_len + 0.5)
             if len(frames) >= min_frames:
                 audio_int = np.frombuffer(b''.join(frames), dtype=np.int16)
@@ -243,15 +243,15 @@ class MicrophoneManager:
                 print(f"录音完成, 时长: {len(audio) / self.sample_rate:.2f}秒", flush=True)
                 self.device = device
                 return audio
-            
+
             if device_worked:
                 self.device = device
-            
+
             print(f"设备 {device} 未检测到有效语音, 尝试下一个设备", flush=True)
-        
+
         print("所有设备均无法正常工作", flush=True)
         return None
-    
+
     def _cleanup(self):
         if self._proc is not None:
             try:
@@ -272,7 +272,7 @@ class MicrophoneManager:
                 except Exception:
                     pass
             self._proc = None
-    
+
     def __del__(self):
         self._cleanup()
 
@@ -342,7 +342,6 @@ def speak(text):
     last_tts_text = text
     def _speak():
         global last_speak_time
-        is_first = True
         tmp_mp3 = ""
         tmp_wav = ""
         with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as f:
@@ -458,7 +457,7 @@ def run_aim(prompt_text, window):
 def audio_loop(window):
     mic = MicrophoneManager()
     print("音频循环已启动", flush=True)
-    
+
     while True:
         if speaking_event.is_set():
             time.sleep(0.3)

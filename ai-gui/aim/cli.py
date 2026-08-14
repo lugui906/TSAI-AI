@@ -1,5 +1,4 @@
 import sys
-import readline
 from aim.config import ensure_dirs, load_config, save_config
 from aim.agent import list_agents, get_agent, save_agent, delete_agent, build_system_prompt
 from aim.conversation import new_conversation, get_conversation, list_conversations, add_message

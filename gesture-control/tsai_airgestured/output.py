@@ -24,7 +24,7 @@ gi.require_version("Gio", "2.0")
 gi.require_version("GLib", "2.0")
 from gi.repository import Gio, GLib  # noqa: E402
 
-from . import DBUS_IFACE, DBUS_NAME, DBUS_PATH  # noqa: E402
+from . import DBUS_IFACE, DBUS_PATH  # noqa: E402
 
 logger = logging.getLogger("tsai.output")
 

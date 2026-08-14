@@ -39,7 +39,7 @@ class Kalman1D:
 
     def update(self, z: float) -> float:
         """更新步骤，返回滤波后估计。"""
-        pred, pred_cov = self.x[0], self.P[0, 0]
+        pred, _ = self.x[0], self.P[0, 0]
         s = self.P[0, 0] + self.R
         k = self.P[0, 0] / s if s > 0 else 0.0
         residual = z - pred

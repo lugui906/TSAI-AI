@@ -10,3 +10,11 @@ requires-python = ">=3.10"
 
 [project.scripts]
 clockai = "clockai.cli:main"
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+exclude = ["**/__pycache__"]
+
+[tool.ruff.lint]
+select = ["E9", "F"]

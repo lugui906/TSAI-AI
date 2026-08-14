@@ -20,7 +20,7 @@ try:
     gi.require_version("Gtk", "3.0")
     gi.require_version("Gdk", "3.0")
     gi.require_version("Pango", "1.0")
-    from gi.repository import Gtk, Gdk, GLib, Pango, Gio
+    from gi.repository import Gtk, Gdk, GLib, Pango
 except ImportError:
     sys.stderr.write("Error: PyGObject required. sudo apt install python3-gi gir1.2-gtk-3.0\n")
     sys.exit(1)

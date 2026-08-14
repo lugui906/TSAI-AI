@@ -1,0 +1,23 @@
+# web-ai-server 局域网部署示例
+#
+# 用法：
+#   docker compose up -d --build
+#   # 若本机已编译 aim 二进制，可挂载使其可用：
+#   docker compose run --rm web-ai-server bash
+#
+# 注意：容器内没有 aim CLI 时，AI 对话接口会失败。
+# 可选：把宿主机的 aim 挂入容器（保持目录为可执行文件）。
+services:
+  web-ai-server:
+    build: .
+    container_name: web-ai-server
+    restart: unless-stopped
+    ports:
+      - "5001:5001"
+    volumes:
+      # 会话/定时任务持久化
+      - ./data:/app/data
+      # 可选：挂载宿主机的 aim 二进制（构建 agent，完整系统权限需另行配置）
+      # - /usr/local/bin/aim:/usr/local/bin/aim:ro
+    environment:
+      - FLASK_ENV=production

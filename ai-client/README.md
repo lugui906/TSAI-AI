@@ -12,7 +12,7 @@ ui/main_window.py      UI 全部逻辑（886 行）：内联实现 AIBackend / O
                        + render_markdown / ChatMessage / SettingsDialog / MainWindow
 backends/              后端抽象包（base / ollama_backend / aim_backend）
                        ⚠️ 当前 UI 未 import 该包，内联版在 main_window.py 中
-requirements.txt       requests、PyGObject、SpeechRecognition、PyAudio
+requirements.txt       锁文件（由 `pip-compile requirements.in` 生成）：requests、SpeechRecognition
 ```
 
 ## 核心运行流程
@@ -29,6 +29,7 @@ requirements.txt       requests、PyGObject、SpeechRecognition、PyAudio
 ## 运行
 
 ```bash
+# 系统依赖：apt install python3-gi gir1.2-gtk-3.0 portaudio19-dev
 pip install -r requirements.txt
 python3 main.py
 ```

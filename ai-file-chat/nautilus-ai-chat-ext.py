@@ -10,7 +10,6 @@ import os
 import shutil
 import subprocess
 
-from gi import require_version
 from gi.repository import Nautilus, GObject
 
 CHAT_APP = os.environ.get("AI_FILE_CHAT_BIN") or shutil.which("ai-file-chat") or "/usr/local/bin/ai-file-chat"

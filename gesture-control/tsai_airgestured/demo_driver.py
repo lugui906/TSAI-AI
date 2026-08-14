@@ -14,7 +14,6 @@ import logging
 import time
 from typing import Optional
 
-from . import STATE_GESTURE, STATE_IDLE, STATE_SLEEP, STATE_WAKE
 from .config import Config
 from .demo_camera import DemoSource
 from .filter import KalmanFilter

@@ -4,7 +4,7 @@
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, GLib, Pango
+from gi.repository import Gtk, Pango
 
 from aps.core.slides import SlidesEngine
 

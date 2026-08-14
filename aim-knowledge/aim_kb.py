@@ -12,7 +12,6 @@
 """
 
 import os
-import sys
 import pwd
 import threading
 import subprocess
@@ -165,7 +164,7 @@ class AimKbApp:
         right.pack_start(input_box, False, False, 0)
 
     def _init_tags(self):
-        table = self.buffer.get_tag_table()
+        self.buffer.get_tag_table()
         self.buffer.create_tag("sys", foreground=COLOR_SYS)
         self.buffer.create_tag("user", foreground=COLOR_USER, weight=700)
         self.buffer.create_tag("ai", foreground=COLOR_AI, weight=700)

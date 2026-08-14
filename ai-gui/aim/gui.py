@@ -314,11 +314,11 @@ class AIMGUI:
             tag = tags.lookup(tag_name)
             if not tag:
                 if tag_name == "user":
-                    t = self.chat_buffer.create_tag("user", weight=700)
+                    self.chat_buffer.create_tag("user", weight=700)
                 elif tag_name == "assistant":
-                    t = self.chat_buffer.create_tag("assistant", weight=700)
+                    self.chat_buffer.create_tag("assistant", weight=700)
                 elif tag_name == "streaming":
-                    t = self.chat_buffer.create_tag("streaming", foreground="#2a7a2a")
+                    self.chat_buffer.create_tag("streaming", foreground="#2a7a2a")
 
     def _on_new_chat(self, _btn):
         if not self.current_agent_name:

@@ -1,8 +1,7 @@
 import gi
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, GObject, Pango
+from gi.repository import Gtk
 from pathlib import Path
-import os
 
 
 class Document:
@@ -76,7 +75,6 @@ class DocxDocument(Document):
 
     def write(self, text):
         from docx import Document as DocxDoc
-        from docx.shared import Pt, Inches
         doc = DocxDoc()
         for line in text.split("\n"):
             if line.strip().startswith("#"):
@@ -84,7 +82,7 @@ class DocxDocument(Document):
                 heading = line.lstrip("#").strip()
                 doc.add_heading(heading, level=min(level, 4))
             else:
-                p = doc.add_paragraph(line)
+                doc.add_paragraph(line)
         doc.save(str(self.path))
 
     def get_display_name(self):
@@ -113,7 +111,6 @@ class XlsxDocument(Document):
 
     def write(self, text):
         import openpyxl
-        from openpyxl.styles import Font
         wb = openpyxl.Workbook()
         ws = wb.active
         ws.title = "Sheet1"

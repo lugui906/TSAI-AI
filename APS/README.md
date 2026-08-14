@@ -30,9 +30,9 @@ WPS/Office 是"人操作文档"的工具；APS 是"AI 操作文档"的工具。
 
 ## 技术栈
 
-- Python 3.14 + GTK4（PyGObject）
+- Python 3.14 + GTK4（PyGObject，系统包：`apt install python3-gi gir1.2-gtk-4.0`）
 - AIM 2.0 CLI（opencode 引擎）
-- python-pptx 1.0.2 / openpyxl 3.1.5 / python-docx / reportlab 5.0 / pypdf 6.15
+- python-pptx / openpyxl / python-docx / reportlab / pypdf（见 `requirements.txt`，锁文件由 `pip-compile requirements.in` 生成）
 
 ## 结构
 

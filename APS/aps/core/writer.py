@@ -5,7 +5,6 @@
 模型：段落列表 [{text, style, bold, size, color, align, list}]
 与 python-docx 互转，供 GTK4 富文本视图使用。
 """
-import os
 
 from docx import Document as DocxDoc
 from docx.shared import Pt, RGBColor

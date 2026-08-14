@@ -11,7 +11,7 @@
 """
 import sys
 
-from aps.lo import aps_ai, aps_doc
+from aps.lo import aps_ai
 
 LO_PORT = 2002
 

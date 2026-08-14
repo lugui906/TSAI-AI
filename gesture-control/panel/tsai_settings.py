@@ -20,7 +20,6 @@ import os
 import signal
 import sys
 import subprocess
-import sys
 
 import gi
 
@@ -30,7 +29,7 @@ try:
     gi.require_version("Gio", "2.0")
 except Exception:
     pass
-from gi.repository import Gtk, GLib, Gio
+from gi.repository import Gtk, Gio
 
 from tsai_airgestured import CONFIG_PATH
 

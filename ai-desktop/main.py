@@ -5,7 +5,6 @@ User types message → aim plaintext stream output → render chat view.
 AI uses tine to control desktop.
 """
 import os
-import re
 import subprocess
 import sys
 import threading
@@ -444,7 +443,7 @@ def main():
     app = Gtk.Application(application_id='com.doubao.gtk.desktop.plain', flags=Gio.ApplicationFlags.FLAGS_NONE)
 
     def activate(app):
-        win = DoubaoWindow()
+        DoubaoWindow()
         app.hold()
 
     app.connect('activate', activate)
@@ -452,4 +451,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

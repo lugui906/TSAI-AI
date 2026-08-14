@@ -5,7 +5,6 @@
 模型：sheets = [{name, rows: [[cell,...],...], col_widths, row_heights}]
 单元格 cell = 字符串（或数字），None 表示空。
 """
-import os
 
 from openpyxl import load_workbook, Workbook
 from openpyxl.utils import get_column_letter

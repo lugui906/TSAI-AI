@@ -1,0 +1,14 @@
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+exclude = [
+    "**/__pycache__",
+    "**/.git",
+    "ai-hub/build",
+    "**/*.egg-info",
+]
+
+[tool.ruff.lint]
+# 基线：真实 bug（E9）+ Pyflakes（F）。遗留代码暂不强制风格类规则，
+# 新代码贡献请参考 CONTRIBUTING.md 中的完整建议规则集。
+select = ["E9", "F"]

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, asdict
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Optional
 import uuid
 

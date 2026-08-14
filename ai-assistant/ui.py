@@ -339,7 +339,7 @@ class AssistantWindow(Gtk.ApplicationWindow):
                 GLib.idle_add(lambda: self._on_context_done(None, "读取界面超时"))
                 return
             except Exception as e:
-                GLib.idle_add(lambda: self._on_context_done(None, str(e)))
+                GLib.idle_add(lambda e=e: self._on_context_done(None, str(e)))
                 return
             if result.returncode != 0:
                 err = result.stderr.strip() or "tine tree 执行失败"

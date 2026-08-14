@@ -10,6 +10,18 @@ TSAI-OS 相关 AI 项目集合，全部为独立子项目，统一采用 `kebab-
 > 本项目原为 TSAI-OS 系统内部组件，现已开源。代码中的部署路径已改为动态解析
 > （相对路径 / `shutil.which` / 环境变量），便于在任意环境运行。
 
+## 工程化
+
+- **CI**：`.github/workflows/ci.yml` —— ruff lint、gitleaks 全历史 secret 扫描、
+  pip-audit 依赖审计、ai-hub Go test/vet/golangci-lint、Python 单元测试。
+- **pre-commit**：`.pre-commit-config.yaml`（尾随空格/EOF/大文件/ruff 检查）。
+- **贡献指南**：[CONTRIBUTING.md](CONTRIBUTING.md) + [行为准则](CODE_OF_CONDUCT.md)
+  + [PR 模板](.github/PULL_REQUEST_TEMPLATE.md)。
+- **依赖锁定**：有依赖的 Python 子项目用 `requirements.in` + `pip-compile` 生成锁文件
+  `requirements.txt`（APS / ai-client / meeting-summary*）。
+- **模型清单**：`model-manager/models.yaml` + `scripts/download_models.py`
+  （下载/校验 sha256）。
+
 ## 整体架构
 
 ```

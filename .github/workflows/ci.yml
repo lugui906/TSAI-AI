@@ -1,0 +1,112 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ---------- Python lint（真实 bug + Pyflakes） ----------
+  python-lint:
+    name: Python lint (ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install ruff
+        run: pip install ruff
+      - name: ruff check
+        run: ruff check .
+      - name: ruff format (check)
+        run: ruff format --check . || echo "::warning::ruff format 未通过（遗留代码暂不强制）"
+
+  # ---------- Secret 扫描（全历史） ----------
+  secrets:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ---------- 依赖审计 ----------
+  deps:
+    name: Dependency audit (pip-audit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pip-audit
+        run: pip install pip-audit
+      - name: Audit Python requirements
+        run: |
+          set +e
+          failed=0
+          for req in APS/requirements.txt ai-client/requirements.txt \
+                     meeting-summary/requirements.txt meeting-summary-cli/requirements.txt; do
+            echo "=== pip-audit $req ==="
+            pip-audit -r "$req" || failed=1
+          done
+          exit $failed
+
+  # ---------- Go 质量检查（ai-hub） ----------
+  go:
+    name: Go test + vet (ai-hub)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ai-hub
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+      - name: go mod tidy check
+        run: |
+          go mod tidy
+          git diff --exit-code -- go.mod go.sum || { echo "go.mod/go.sum 未 tidy"; exit 1; }
+      - name: go test
+        run: go test ./...
+      - name: go vet
+        run: go vet ./...
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          working-directory: ai-hub
+          version: latest
+
+  # ---------- Python 单元测试（可选子项目，不阻塞） ----------
+  python-test:
+    name: Python tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pytest
+        run: pip install pytest
+      - name: Run ai-clock tests
+        run: |
+          cd ai-clock
+          python -m pytest tests/ -v
+        continue-on-error: true
+      - name: Install APS test deps
+        run: pip install -r APS/requirements.txt pytest
+      - name: Run APS tests
+        run: |
+          cd APS
+          python -m pytest tests/ -v --ignore=aps
+        continue-on-error: true

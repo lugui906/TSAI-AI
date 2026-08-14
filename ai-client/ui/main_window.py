@@ -1,5 +1,4 @@
 import os
-import sys
 import threading
 import json
 import requests
@@ -379,7 +378,7 @@ class ChatMessage(Gtk.Box):
         except subprocess.TimeoutExpired:
             GLib.idle_add(lambda: output_label.set_markup("<b>错误:</b> 执行超时"))
         except Exception as e:
-            GLib.idle_add(lambda: output_label.set_markup(f"<b>错误:</b> {escape_pango(str(e))}"))
+            GLib.idle_add(lambda e=e: output_label.set_markup(f"<b>错误:</b> {escape_pango(str(e))}"))
 
     def update_content(self, content):
         old = self.content_widget

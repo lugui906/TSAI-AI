@@ -18,7 +18,7 @@ from __future__ import annotations
 import configparser
 import os
 import threading
-from typing import Any, Callable, Dict
+from typing import Any, Callable
 
 from . import CONFIG_PATH
 

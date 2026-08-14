@@ -22,3 +22,7 @@ ai-hub/build/
 .venv/
 venv/
 *.log
+
+# runtime data
+web-ai-server/data/*.json
+web-ai-server/data/workdir/

@@ -11,11 +11,11 @@ dist/
 *.bin
 
 # AI model files
-aai/share/models/
+ai-voice/share/models/
 
 # Binaries & packages
-aim/aim
-aim/build/
+ai-hub/aim
+ai-hub/build/
 *.apk
 
 # System / runtime

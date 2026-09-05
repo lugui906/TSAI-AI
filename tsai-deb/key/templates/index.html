@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 助手</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header id="topbar">
+        <button class="chip" id="newChatBtn" title="新对话">＋ 新对话</button>
+        <span class="brand">AI <em>助手</em></span>
+        <span class="brand-sub">截图识别 · 界面上下文 · aim 会话</span>
+        <div class="spacer"></div>
+        <button class="chip" id="ctxBtn" title="读取界面上下文（随下条消息发给 AI）">🌐 上下文</button>
+        <button class="chip" id="shotBtn" title="截图并 OCR（作为附件发送）">📷 截图</button>
+        <button class="chip" id="convBtn" title="对话记录（aim se）">⇄ 会话</button>
+        <button class="chip" id="histBtn" title="历史记录">🕘 历史</button>
+    </header>
+
+    <div id="layout">
+        <main id="chatArea">
+            <div id="welcome">
+                <div class="welcome-title">AI <span>助手</span></div>
+                <div class="welcome-sub">直接对话 · 可截图识别图片 · 读取界面上下文给 AI 参考</div>
+                <div class="sugg">
+                    <button class="chip sugg-chip" data-q="帮我看一下当前桌面上有什么">🖥️ 看看桌面</button>
+                    <button class="chip sugg-chip" data-q="总结当前窗口内容">📋 总结窗口</button>
+                    <button class="chip sugg-chip" data-q="帮我翻译一下这段内容">🌐 翻译</button>
+                </div>
+            </div>
+            <div id="msgList" class="hidden"></div>
+            <div id="ctxBar" class="hidden">
+                <span>🌐 界面上下文已读取，随下条消息发送</span>
+                <button class="chip small" id="ctxClear">取消</button>
+            </div>
+        </main>
+    </div>
+
+    <footer id="inputBar">
+        <div id="fileBar" class="hidden">
+            <div id="fileChips"></div>
+        </div>
+        <div class="input-card">
+            <textarea id="input" rows="1" placeholder="输入消息…（Enter 发送，Shift+Enter 换行）"></textarea>
+            <button class="icon-btn tool" id="attachBtn" title="附加文件/图片">📎</button>
+            <button class="icon-btn primary" id="sendBtn" title="发送">↑</button>
+            <button class="icon-btn warn hidden" id="stopBtn" title="停止">■</button>
+        </div>
+    </footer>
+
+    <div id="settingsModal" class="modal-mask hidden">
+        <div class="modal">
+            <div class="modal-head">
+                <span class="modal-title">⇄ 对话记录</span>
+                <button class="modal-close" id="settingsClose">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="model-row" style="margin-bottom:10px;">
+                    <span class="muted" id="convHint">最新在前，#1 为最近会话</span>
+                    <button class="chip" id="convRefresh" style="margin-left:auto;">⟳ 刷新</button>
+                </div>
+                <div id="convList"><div class="empty">加载中…</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

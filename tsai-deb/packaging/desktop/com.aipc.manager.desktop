@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=电脑管家
+Name[zh_CN]=电脑管家
+Comment=系统管理工具
+Comment[zh_CN]=系统管理和优化工具
+Exec=python3 /usr/tsai-12/mgr/main.py
+Icon=computer
+Terminal=false
+Categories=System;Utility;
+Keywords=system;management;
+StartupNotify=true
+StartupWMClass=com.aipc.manager

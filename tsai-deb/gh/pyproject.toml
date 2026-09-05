@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tsai-airgestured"
+version = "1.0.0"
+description = "TSAI-OS 隔空手势系统（纯本地推理 · Wayland 原生）"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+dependencies = [
+    "opencv-python>=4.5",
+    "numpy>=1.20",
+    "PyGObject>=3.42",
+    "dbus-python>=1.2",
+]
+
+[project.scripts]
+tsai-airgestured = "tsai_airgestured.__main__:main"
+
+[tool.setuptools]
+packages = ["tsai_airgestured"]

@@ -1,0 +1,42 @@
+Package: chindows
+Version: 12.0.0
+Section: utils
+Priority: optional
+Architecture: all
+Depends: python3 (>= 3.10),
+ python3-flask,
+ python3-gi,
+ python3-gi-cairo,
+ python3-cairo,
+ python3-numpy,
+ python3-psutil,
+ python3-httpx,
+ python3-requests,
+ python3-docx,
+ python3-openpyxl,
+ python3-dbus,
+ python3-tk,
+ python3-opencv,
+ python3-pil,
+ python3-pyaudio,
+ python3-six,
+ gir1.2-gtk-4.0,
+ libgtk-4-1,
+ libgl1,
+ libgomp1,
+ tesseract-ocr,
+ tesseract-ocr-chi-sim,
+ xdotool,
+ ydotool,
+ ffmpeg,
+ alsa-utils,
+ libnotify-bin
+Recommends: gir1.2-webkit-6.0, libwebkitgtk-6.0-4
+Conflicts: chindows (<< 12.0.0)
+Maintainer: TSAI-OS Team <tsai@localhost>
+Homepage: https://localhost/chindows
+Description: Chindows / ChinAI - TSAI-OS AI 应用集合
+ 一套面向桌面 Linux（Ubuntu 系）的 AI 应用集合，包含 AI 对话中枢
+ (ChinAI3)、语音助手、智能体、AI 助手、屏幕控制、会议纪要、AI 记事本、
+ 知识库、模型管理器、定时器等约 16 个应用，并附带应用菜单(.desktop)。
+ 安装到 /usr/tsai-12，提供 /usr/bin 入口与 systemd 用户服务。

@@ -1,0 +1,73 @@
+import os
+import sys
+
+import gi
+
+gi.require_version("Gtk", "4.0")
+
+from gi.repository import GLib
+
+GLib.set_prgname("com.local.AiAssistant")
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from ipc import Client
+from ui import AssistantApp
+
+try:
+    import chindows_theme.style as chstyle
+except ImportError:
+    import os as _os, sys as _sys
+    _d = _os.path.dirname(_os.path.abspath(__file__))
+    while _d and not _os.path.isdir(_os.path.join(_d, "chindows_theme")):
+        _p = _os.path.dirname(_d)
+        if _p == _d:
+            break
+        _d = _p
+    if _d:
+        _sys.path.insert(0, _d)
+    try:
+        import chindows_theme.style as chstyle
+    except Exception:
+        chstyle = None
+
+
+LOG = "[AI助手]"
+
+
+def log(msg):
+    print(f"{LOG} {msg}", flush=True)
+
+
+def main():
+    args = sys.argv[1:]
+    hidden = "--hidden" in args
+    cmd = None
+    for flag in ("--screenshot", "--wake", "--context"):
+        if flag in args:
+            cmd = flag
+            break
+
+    if cmd:
+        log(f"收到命令: {cmd}, 尝试 IPC 发送...")
+        if Client.send(cmd):
+            log("IPC 发送成功，后台实例已处理")
+            return 0
+        log("IPC 发送失败，将启动新实例")
+
+    app = AssistantApp(start_hidden=hidden, pending_cmd=cmd)
+    log(f"启动应用: hidden={hidden}, pending_cmd={cmd}")
+    # 过滤自定义参数，只传 GTK 能识别的选项
+    gtk_argv = [sys.argv[0]]
+    for a in sys.argv[1:]:
+        if a.startswith("--gdk-") or a.startswith("--gtk-") or a == "--help" or a == "--version":
+            gtk_argv.append(a)
+    if chstyle:
+        chstyle.apply_gtk4()
+    code = app.run(gtk_argv)
+    log(f"应用退出, code={code}")
+    return code or 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

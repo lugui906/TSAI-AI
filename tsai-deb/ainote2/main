@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+"""AI 记事本 — HTML 套壳入口（WebKit GTK4 + 本地 Flask）。"""
+import os
+import sys
+
+sys.path.insert(0, "/usr/chindows")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+import server  # noqa: E402
+from chindshell import shell  # noqa: E402
+
+
+def main():
+    shell.run(
+        app_id="com.tsai.ai-note",
+        prgname="com.tsai.ai-note",
+        title="AI 记事本",
+        icon="gnome-text-editor",
+        server_module=server,
+        width=1280, height=820,
+    )
+
+
+if __name__ == "__main__":
+    main()

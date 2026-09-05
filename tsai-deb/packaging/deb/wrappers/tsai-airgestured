@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# 隔空手势守护进程（来源 gh/tools）
+exec python3 /usr/chindows/gh/tools/tsai-airgestured "$@"

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# 生成 requirements.txt 供目标系统安装
+set -euo pipefail
+printf '%s\n' \
+  "opencv-python>=4.5" \
+  "numpy>=1.20" \
+  "PyGObject>=3.42" \
+  "dbus-python>=1.2" > requirements.txt
+echo "wrote requirements.txt"
+cat requirements.txt

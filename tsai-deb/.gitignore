@@ -1,0 +1,25 @@
+# Published artifacts /大型二进制不推送
+packaging/dist/
+packaging/external/
+*.deb
+
+# Source archives
+*.zip
+*.tar.gz
+*.bak
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+
+# Models (watch binaries, 由下载脚本/README 提供)
+aai/share/models/
+gh/models/
+gh/.*\.tflite*
+**/share/models/
+
+# 强制保留的 AIM 二进制（git add -f bin/aim 已纳入）
+!bin/aim

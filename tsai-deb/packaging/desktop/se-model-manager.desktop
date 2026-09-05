@@ -1,0 +1,15 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=AI模型管理器
+Name[en]=AI Model Manager
+Comment=管理 opencode/aim 的默认模型与自定义 Provider（API）
+Comment[zh_CN]=管理 opencode/aim 的默认模型与自定义 Provider（API）
+Exec=se-model-manager
+Icon=preferences-system
+Terminal=false
+Categories=Settings;
+Keywords=model;provider;api;opencode;aim;模型;AI;
+StartupNotify=true
+NoDisplay=false
+StartupWMClass=se-model-manager

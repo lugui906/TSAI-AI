@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=智能体
+Comment=系统级 AI 实时语音字幕（Whisper base 本地模型）
+Exec=python3 /usr/tsai-12/bai/ai-gui.py
+Icon=face-smile
+StartupWMClass=com.tsai.ai-agent
+Terminal=false
+Categories=Utility;Accessibility;

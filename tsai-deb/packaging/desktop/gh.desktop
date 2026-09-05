@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=隔空手势
+Name[en]=Air Gesture
+Comment=手掌隔空控制：上下滑动滚动页面，前推播放/暂停
+Comment[zh_CN]=手掌隔空控制：上下滑动滚动页面，前推播放/暂停
+Exec=env PYTHONPATH=/usr/tsai-12/gh python3 /usr/tsai-12/gh/panel/tsai_settings.py
+Icon=video-display
+Terminal=false
+Categories=Utility;Settings;
+Keywords=gesture;air;control;wayland;隔空;手势;
+StartupNotify=true
+StartupWMClass=org.tsaios.airgesture.settings

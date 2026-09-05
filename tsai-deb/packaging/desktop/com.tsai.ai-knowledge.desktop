@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=AI知识库
+Name[en]=AI Knowledge Base
+Comment=基于 aim 的 AI 知识库对话工具
+Comment[en]=AI knowledge base chat tool powered by aim
+Exec=python3 /usr/tsai-12/z/aim_kb.py
+Icon=folder
+StartupWMClass=com.tsai.ai-knowledge
+Terminal=false
+Categories=Utility;Office;
+Keywords=ai;knowledge;knowledgebase;chat;库;
+StartupNotify=true

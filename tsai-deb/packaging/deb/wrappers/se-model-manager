@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# AI 模型管理器（chindshell 套壳，来源 se）
+exec python3 /usr/chindows/se/main.py "$@"

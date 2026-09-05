@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Chinside/ChinAI 一键运行入口（deb 打包）
+exec env PYTHONPATH=/usr/chindows/clockai python3 -c 'import sys; from clockai.cli import main; sys.exit(main())' "$@"

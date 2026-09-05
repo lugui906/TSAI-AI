@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 记事本</title>
+<link rel="stylesheet" href="/chindshell/style.css">
+<style>
+  html, body { height: 100vh; }
+  body { min-height: 0; }
+  #layout { overflow: hidden; min-height: 0; }
+  /* 编辑器区 */
+  #editorPane { display: flex; flex-direction: column; min-width: 0; }
+  .ed-title { display:flex; align-items:center; gap:8px; padding:8px 12px; border-bottom:1px solid var(--border); flex-shrink:0; }
+  .ed-title .fname { font-weight:700; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ed-title .ffmt { font-size:11px; color:var(--muted); }
+  #editor { flex:1; width:100%; border:none; outline:none; resize:none; background:transparent; color:var(--text);
+            font-family:var(--font); font-size:14px; line-height:1.7; padding:14px 18px;
+            border-radius:0; box-shadow:none; min-height:0; }
+  #editor:focus, #editor:focus-visible { box-shadow:none; outline:none; border-color:transparent; background:transparent; }
+  #editor::placeholder { color:var(--muted); }
+  #editor.mono { font-family:var(--mono); }
+  /* AI 面板 */
+  #aiPane { width:340px; flex-shrink:0; }
+  .ai-msg { padding:8px 12px; border-radius:10px; font-size:13px; line-height:1.6; white-space:pre-wrap; word-break:break-word; margin-bottom:8px; color:var(--text); }
+  .ai-msg.user { background:rgba(52,122,235,0.12); }
+  .ai-msg.assistant { background:rgba(46,160,67,0.10); }
+  .ai-msg.system { background:rgba(255,193,7,0.12); color:var(--text-2); font-size:12px; }
+  .ctx-box { background:rgba(255,255,255,0.4); border:1px solid var(--border); border-radius:10px;
+             padding:8px 10px; font-size:12px; color:var(--text-2); max-height:90px; overflow-y:auto; white-space:pre-wrap; word-break:break-word; }
+  @media (prefers-color-scheme: dark) { .ctx-box { background:rgba(38,42,52,0.5); } }
+  .ai-actions { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; padding:0 10px; flex-shrink:0; }
+  .ai-actions button { font-size:11px; padding:4px 2px; }
+  #aiInput { flex:1; border:1px solid var(--border); background:rgba(255,255,255,0.75); color:var(--text);
+             border-radius:10px; padding:8px 12px; font-size:13px; font-family:var(--font);
+             outline:none; resize:none; min-height:40px; line-height:1.5; }
+  @media (prefers-color-scheme: dark) { #aiInput { background:rgba(30,34,42,0.7); } }
+  #aiInput:focus { border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-soft); }
+</style>
+</head>
+<body>
+<header id="topbar">
+    <span class="brand">AI <em>记事本</em></span>
+    <span class="brand-sub">文档编辑 · AI 辅助</span>
+    <div class="spacer"></div>
+    <label style="display:flex;align-items:center;gap:6px;color:var(--text-2);font-size:12.5px;">
+        <input type="checkbox" id="monoBtn"> 等宽
+    </label>
+    <button class="chip" id="openBtn">打开</button>
+    <button class="chip" id="saveBtn">保存</button>
+    <button class="chip primary" id="newBtn">新建</button>
+</header>
+
+<div id="layout">
+    <div class="pane side" id="fileSide">
+        <div class="pane-title">🗂 文件 <div class="spacer"></div>
+            <button class="chip small" id="refreshBtn">刷新</button></div>
+        <div style="display:flex;gap:4px;padding:8px 10px 4px;">
+            <input type="text" id="dirInput" placeholder="目录路径" style="flex:1">
+            <button class="btn" id="browseBtn" title="选择文件夹">…</button>
+        </div>
+        <div style="padding:4px 10px 8px;">
+            <select id="filterSel">
+                <option value="">全部</option>
+                <option value=".md">md</option>
+                <option value=".docx">docx</option>
+                <option value=".xlsx">xlsx</option>
+                <option value=".txt">txt</option>
+            </select>
+        </div>
+        <div class="pane-body"><div id="fileList" class="list"></div></div>
+    </div>
+
+    <div class="pane main" id="editorPane">
+        <div class="ed-title">
+            <span class="fname" id="edName">未命名</span>
+            <span class="ffmt" id="edFmt"></span>
+            <div class="spacer" style="flex:1"></div>
+            <span id="edStatus" style="font-size:11px;color:var(--muted);"></span>
+        </div>
+        <textarea id="editor" placeholder="开始输入…" spellcheck="false"></textarea>
+    </div>
+
+    <div class="pane" id="aiPane">
+        <div class="pane-title">🤖 AI 助手
+            <div class="spacer"></div>
+            <button class="chip small" id="histToggle">📜</button>
+        </div>
+        <div id="histPane" style="display:none;border-bottom:1px solid var(--border);max-height:160px;overflow-y:auto;padding:6px;">
+            <div id="histList" style="display:flex;flex-direction:column;gap:2px;"></div>
+            <div style="display:flex;justify-content:flex-end;padding-top:4px;">
+                <button class="chip small danger" id="histClear">清空历史</button>
+            </div>
+        </div>
+        <div style="padding:8px 10px 2px;" id="ctxWrap">
+            <div id="ctxBox" class="ctx-box hidden">未选中文本</div>
+        </div>
+        <div class="pane-body" id="aiMsgList"></div>
+        <div class="ai-actions" style="padding-bottom:6px;">
+            <button class="btn" data-act="改写">改写</button>
+            <button class="btn" data-act="翻译成中文">翻译中文</button>
+            <button class="btn" data-act="翻译成英文">翻译英文</button>
+            <button class="btn" data-act="总结">总结</button>
+        </div>
+        <div class="ai-actions" style="padding-bottom:6px;">
+            <button class="btn" data-act="续写">续写</button>
+            <button class="btn" data-act="扩写">扩写</button>
+            <button class="btn" data-act="简化">简化</button>
+            <button class="btn" data-act="全文改写">全文改写</button>
+        </div>
+        <div class="ai-actions" style="padding-bottom:8px;">
+            <button class="btn" data-act="全文总结">全文总结</button>
+            <button class="btn" data-act="全文翻译">全文翻译</button>
+        </div>
+        <div style="display:flex;gap:6px;align-items:flex-end;padding:0 10px 10px;flex-shrink:0;">
+            <textarea id="aiInput" placeholder="向 AI 提问…（Enter 发送 / Shift+Enter 换行）"></textarea>
+            <button class="btn primary" id="aiSend">发送</button>
+        </div>
+    </div>
+</div>
+
+<div id="statusbar"><span class="dot" id="statusDot"></span><span id="statusText">就绪</span></div>
+<div class="toast" id="toast"></div>
+
+<script src="static/app.js"></script>
+</body>
+</html>

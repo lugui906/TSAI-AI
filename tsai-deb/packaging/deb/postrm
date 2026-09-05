@@ -1,0 +1,23 @@
+#!/bin/bash
+set -e
+# 移除 chindows 应用菜单项与我们装的服务单元（文件本体由 dpkg 删除）
+rm -f /usr/share/applications/ai-voice.desktop \
+      /usr/share/applications/chindows-update.desktop \
+      /usr/share/applications/com.aipc.manager.desktop \
+      /usr/share/applications/com.local.AiAssistant.desktop \
+      /usr/share/applications/com.tsai.ai-agent.desktop \
+      /usr/share/applications/com.tsai.ai-knowledge.desktop \
+      /usr/share/applications/com.tsai.ai-note.desktop \
+      /usr/share/applications/com.tsai.ai-screen-control.desktop \
+      /usr/share/applications/com.tsai.ai-timer.desktop \
+      /usr/share/applications/com.tsai.chinai3.desktop \
+      /usr/share/applications/com.tsai.meeting-hm.desktop \
+      /usr/share/applications/com.tsai.meeting-hy.desktop \
+      /usr/share/applications/gh.desktop \
+      /usr/share/applications/se-model-manager.desktop \
+      /usr/share/applications/token-monitor.desktop \
+      /usr/share/applications/webai.desktop \
+      2>/dev/null || true
+update-desktop-database /usr/share/applications 2>/dev/null || true
+systemctl --user daemon-reload 2>/dev/null || true
+exit 0

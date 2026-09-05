@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=ChinAI3
+Name[zh_CN]=ChinAI3
+Comment=AI 对话助手（多引擎 AI 中枢）
+Comment[zh_CN]=AI 对话助手（多引擎 AI 中枢）
+Exec=python3 /usr/tsai-12/chinai3/main.py
+Icon=dialog-information
+Terminal=false
+Categories=Utility;Development;
+Keywords=ai;chat;assistant;hub;chinai;
+StartupNotify=true
+StartupWMClass=com.tsai.chinai3

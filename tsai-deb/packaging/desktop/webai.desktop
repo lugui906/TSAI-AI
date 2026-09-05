@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=WebAI
+Comment=基于qwen3:0.6b的本地AI助手
+Exec=python3 /usr/tsai-12/wai/server.py
+Icon=internet
+Terminal=true
+Type=Application
+Categories=Utility;TerminalEmulator;
+Keywords=ai;chat;assistant;ollama;qwen;
+StartupNotify=false

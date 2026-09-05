@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIM 知识库</title>
+<link rel="stylesheet" href="/chindshell/style.css">
+</head>
+<body>
+<header id="topbar">
+    <span class="brand">AIM <em>知识库</em></span>
+    <span class="brand-sub">基于 ~/AI知识库 目录对话</span>
+    <div class="spacer"></div>
+    <button class="chip" id="refreshBtn" title="刷新知识库文件列表">🔄 刷新文件</button>
+    <button class="chip primary" id="newBtn">＋ 新对话</button>
+</header>
+
+<div id="layout">
+    <aside id="sidebar">
+        <button class="chip primary side-new" id="sideNew">＋ 新对话</button>
+
+        <div class="side-sec collapsed" id="fileSec">
+            <button class="side-collapse" id="fileSecToggle"><span class="chev">▾</span>📚 知识库文件</button>
+            <div class="side-body">
+                <div id="fileList" class="list"></div>
+                <div id="filePath" class="empty" style="font-size:11px;padding-top:6px;"></div>
+            </div>
+        </div>
+
+        <div class="side-sec grow">
+            <div class="side-title">📜 历史记录<span class="spacer"></span>
+                <button class="chip small" id="hClearBtn">清空</button>
+            </div>
+            <div class="side-body" id="historyList"><div class="empty">暂无记录</div></div>
+        </div>
+    </aside>
+
+    <main id="chatArea">
+        <div id="welcome">
+            <div class="welcome-title">AIM <em>知识库</em></div>
+            <div class="welcome-sub">基于你本地的 <b>~/AI知识库</b> 目录回答。首次提问开始新对话，之后自动延续。</div>
+            <div class="sugg">
+                <button class="sugg-chip" data-q="总结知识库里所有文件的要点">📄 总结知识库</button>
+                <button class="sugg-chip" data-q="列出知识库里的文件并说明各自用途">🗂 文件清单</button>
+                <button class="sugg-chip" data-q="根据知识库内容，讲解其中提到的核心技术">💡 讲解核心概念</button>
+            </div>
+        </div>
+        <div id="msgList" class="hidden"></div>
+        <div id="inputBar">
+            <input type="text" id="entry" placeholder="输入问题，回车发送…" autocomplete="off">
+            <button class="btn primary" id="sendBtn">发送</button>
+        </div>
+    </main>
+</div>
+
+<div id="statusbar"><span class="dot" id="statusDot"></span><span id="statusText">就绪</span></div>
+<div class="toast" id="toast"></div>
+
+<script src="static/app.js"></script>
+</body>
+</html>

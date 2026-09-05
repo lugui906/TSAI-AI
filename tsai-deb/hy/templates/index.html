@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TSAI-OS 会议概括</title>
+<link rel="stylesheet" href="/chindshell/style.css">
+</head>
+<body>
+<header id="topbar">
+    <span class="brand">TSAI-OS <em>会议概括</em></span>
+    <span class="brand-sub">整段录制 · AIM 自动生成纪要</span>
+    <div class="spacer"></div>
+    <button class="chip" id="histBtn" style="display:none">📜 历史记录</button>
+    <button class="btn primary" id="startInternal">● 开始录制（系统内录）</button>
+    <button class="btn" id="startMic">● 开始录制（麦克风）</button>
+    <button class="btn danger" id="stopBtn" disabled>■ 停止并生成纪要</button>
+</header>
+
+<div id="layout">
+    <div class="pane main">
+        <div id="statusbar" style="padding:10px 14px;border-bottom:1px solid var(--border);">
+            <span class="dot" id="statusDot"></span>
+            <span id="statusText">就绪</span>
+            <span style="flex:1"></span>
+            <span id="durText" style="font-family:var(--mono);font-size:12px;">录音时长: 00:00</span>
+            <span id="aimText" style="margin-left:14px;font-size:12px;color:var(--text-2);">AIM: 未调用</span>
+        </div>
+        <div id="histPane" style="display:none;border-bottom:1px solid var(--border);">
+            <div class="pane-title" style="border-bottom:none;">历史纪要
+                <div class="spacer"></div>
+                <button class="chip small danger" id="histClear">清空</button>
+            </div>
+            <div id="histList" class="pane-body" style="max-height:160px;"></div>
+        </div>
+        <div class="pane-body" id="minutesBox" style="white-space:pre-wrap;line-height:1.7;font-size:14px;overflow-y:auto;">尚未生成纪要。开始录制并点击「停止并生成纪要」后，此处将显示 AI 生成的会议纪要。</div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>

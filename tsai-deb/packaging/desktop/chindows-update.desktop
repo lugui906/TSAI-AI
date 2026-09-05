@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=系统更新
+Comment=Chindows-Upgrade
+Exec=python3 /usr/tsai-12/update/main.py
+
+Icon=system-software-update
+Type=Application
+StartupWMClass=chindows-update
+Categories=Office;TextEditor;Utility;GTK;GNOME;
+Keywords=note;text;write;ai;editor;文档;笔记;写作;
+NoDisplay=false
+
+SingleMainWindow=true

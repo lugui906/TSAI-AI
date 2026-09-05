@@ -1,0 +1,383 @@
+/* ============================================================
+   chindows 统一主题 (TSAI-OS)
+   GTK3 / GTK4 通用样式表 — 现代浅色风格，蓝色主色调 #2d7ff9
+   用法：chindows_theme/style.py 中的 apply_gtk3() / apply_gtk4()
+   ============================================================ */
+
+@define-color accent       #2d7ff9;
+@define-color accent-deep  #1a66e0;
+@define-color accent-soft  rgba(45, 127, 249, 0.12);
+@define-color bg           #f4f6f9;
+@define-color surface      #ffffff;
+@define-color border       #e2e6ee;
+@define-color border-strong #c9d2e2;
+@define-color text         #1b1f27;
+@define-color text-muted   #697386;
+@define-color ok           #16a34a;
+@define-color warn         #d97706;
+@define-color err          #dc2626;
+
+/* ---------- 窗口 ----------
+   不透明背景。窗口圆角由 decoration 外框提供（window 背景设圆角会渲染成黑边）。 */
+window, window.background {
+    background-color: @bg;
+    background-image: none;
+    border-radius: 0;
+    color: @text;
+}
+decoration {
+    border-radius: 12px;
+    box-shadow: none;
+}
+dialog {
+    background-color: @surface;
+    color: @text;
+}
+
+/* ---------- 标题栏 ---------- */
+headerbar, .titlebar {
+    background-color: #ffffff;
+    background-image: none;
+    border-bottom: 1px solid rgba(201, 210, 226, 0.55);
+    color: @text;
+    padding: 0 8px;
+    min-height: 39px;
+    box-shadow: none;
+}
+headerbar label, .titlebar label { color: @text; }
+headerbar button, .titlebar button {
+    background-color: transparent;
+    border-color: transparent;
+    min-height: 26px;
+    padding: 2px 10px;
+    margin: 0;
+}
+headerbar button:hover, .titlebar button:hover {
+    background-color: rgba(27, 31, 39, 0.07);
+    border-color: transparent;
+}
+headerbar button:active, .titlebar button:active {
+    background-color: rgba(27, 31, 39, 0.12);
+    border-color: transparent;
+}
+
+/* ---------- 窗口控制按钮（右上角 最小化/最大化/关闭）----------
+   还原 GNOME 默认的紧凑间距，避免被通用 button 规则撑大。
+   GTK3 用 .titlebutton；GTK4 的 windowcontrols 按钮是 image-button。 */
+headerbar button.titlebutton, .titlebar button.titlebutton,
+button.titlebutton {
+    min-width: 20px;
+    min-height: 20px;
+    padding: 4px;
+    margin: 0 2px;
+    border-radius: 9999px;
+    border: none;
+    background-color: transparent;
+    background-image: none;
+    box-shadow: none;
+}
+headerbar button.titlebutton:hover, .titlebar button.titlebutton:hover,
+button.titlebutton:hover {
+    background-color: rgba(27, 31, 39, 0.07);
+    border: none;
+}
+
+/* GTK4 窗口控制按钮：跟随主题默认紧凑尺寸（内部 image 决定大小），
+   只去掉通用 button 的撑高/撑宽，不额外加 padding。
+   特异性需高于后面的 button.image-button 规则。 */
+windowcontrols button, windowcontrols button.image-button {
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
+    margin: 0 1px;
+    border: none;
+    background-color: transparent;
+    background-image: none;
+    box-shadow: none;
+    border-radius: 0;
+}
+windowcontrols button:hover, windowcontrols button.image-button:hover {
+    background-color: transparent;
+    border: none;
+}
+
+/* ---------- 普通按钮（毛玻璃材质）----------
+   苹果式浅色材质：偏灰白基底 + 顶部高光 + 柔和边框。 */
+button {
+    min-height: 32px;
+    padding: 2px 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(178, 190, 210, 0.6);
+    background-color: rgba(248, 249, 251, 0.6);
+    background-image: linear-gradient(to bottom,
+        rgba(255, 255, 255, 0.92),
+        rgba(246, 248, 251, 0.7) 48%,
+        rgba(232, 236, 243, 0.75));
+    color: @text;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 1),
+                inset 0 -1px 1px rgba(120, 135, 160, 0.18),
+                0 1px 2px rgba(16, 24, 40, 0.08);
+    transition: 120ms ease;
+    font-weight: 500;
+}
+button:hover {
+    border-color: rgba(150, 165, 192, 0.75);
+    background-image: linear-gradient(to bottom,
+        rgba(255, 255, 255, 1),
+        rgba(248, 250, 253, 0.8) 48%,
+        rgba(236, 240, 247, 0.85));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 1),
+                inset 0 -1px 1px rgba(120, 135, 160, 0.14),
+                0 1px 3px rgba(16, 24, 40, 0.1);
+}
+button:active {
+    background-image: linear-gradient(to bottom,
+        rgba(226, 232, 240, 0.8),
+        rgba(244, 247, 251, 0.75));
+    border-color: rgba(140, 155, 182, 0.8);
+    box-shadow: inset 0 2px 4px rgba(16, 24, 40, 0.12);
+}
+button:disabled { opacity: 0.5; }
+button:checked {
+    background-color: @accent-soft;
+    border-color: @accent;
+    color: @accent-deep;
+}
+button.suggested-action, button.flat.suggested-action {
+    background-color: @accent;
+    border-color: @accent;
+    color: #ffffff;
+    box-shadow: 0 1px 3px rgba(45, 127, 249, 0.35);
+}
+button.suggested-action:hover {
+    background-color: @accent-deep;
+    border-color: @accent-deep;
+    color: #ffffff;
+}
+button.destructive-action {
+    background-color: @err;
+    border-color: @err;
+    color: #ffffff;
+}
+button.destructive-action:hover { background-color: #b91c1c; border-color: #b91c1c; color: #ffffff; }
+button.image-button { padding: 2px 8px; border-radius: 8px; }
+button.flat { background-color: transparent; border-color: transparent; box-shadow: none; }
+button.flat:hover { background-color: rgba(27, 31, 39, 0.06); }
+button.circular { border-radius: 9999px; }
+
+/* ---------- 输入框（毛玻璃材质）---------- */
+entry, spinbutton {
+    min-height: 34px;
+    border-radius: 8px;
+    border: 1px solid rgba(178, 190, 210, 0.55);
+    background-color: rgba(248, 249, 251, 0.55);
+    background-image: linear-gradient(to bottom,
+        rgba(255, 255, 255, 0.7),
+        rgba(240, 244, 250, 0.5));
+    color: @text;
+    padding: 2px 10px;
+    caret-color: @accent;
+    box-shadow: inset 0 1px 2px rgba(16, 24, 40, 0.07);
+}
+entry:hover, spinbutton:hover { border-color: rgba(160, 175, 200, 0.75); }
+entry:focus, entry:focus-within, spinbutton:focus {
+    border-color: @accent;
+    background-color: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 0 0 2px @accent-soft, inset 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+entry:disabled, spinbutton:disabled { opacity: 0.55; }
+entry image, spinbutton image { color: @text-muted; }
+
+selection { background-color: @accent-soft; color: @accent-deep; }
+
+/* ---------- 文本视图（毛玻璃）---------- */
+textview, textview.view {
+    background-color: rgba(255, 255, 255, 0.4);
+    border-radius: 8px;
+    border: 1px solid rgba(201, 210, 226, 0.6);
+    color: @text;
+    padding: 6px;
+}
+textview text { background-color: transparent; color: @text; }
+textview:focus, textview:focus-within { border-color: @accent; box-shadow: 0 0 0 2px @accent-soft; }
+
+/* ---------- 视图 / 列表 ---------- */
+.view { background-color: rgba(255, 255, 255, 0.35); color: @text; }
+.view:selected, .view:selected:focus { background-color: @accent; color: #ffffff; }
+
+list { background-color: rgba(255, 255, 255, 0.3); }
+list > row {
+    border-radius: 10px;
+    margin: 2px 6px;
+    padding: 6px 10px;
+    background-color: transparent;
+    transition: 100ms ease;
+}
+list > row:hover { background-color: rgba(45, 127, 249, 0.08); }
+list > row:selected, list > row:selected:focus {
+    background-color: @accent;
+    color: #ffffff;
+}
+list > row:selected label { color: #ffffff; }
+
+treeview, treeview.view {
+    background-color: rgba(255, 255, 255, 0.3);
+    color: @text;
+}
+treeview.view:selected, treeview.view:selected:focus {
+    background-color: @accent;
+    color: #ffffff;
+}
+treeview header button {
+    background-color: #f4f6f9;
+    border: none;
+    border-bottom: 1px solid @border;
+    border-radius: 0;
+    box-shadow: none;
+    font-weight: 600;
+    color: @text-muted;
+}
+treeview header button:hover { background-color: #eef1f6; color: @text; }
+
+/* ---------- 滚动区域 / 滚动条 ---------- */
+scrolledwindow { background-color: transparent; }
+scrollbar { background-color: transparent; }
+scrollbar trough {
+    background-color: rgba(16, 24, 40, 0.06);
+    border-radius: 6px;
+}
+scrollbar slider {
+    background-color: rgba(16, 24, 40, 0.25);
+    border-radius: 6px;
+    min-width: 8px;
+    min-height: 8px;
+}
+scrollbar slider:hover { background-color: rgba(16, 24, 40, 0.4); }
+scrollbar slider:active { background-color: @accent; }
+scrollbar.vertical { padding: 2px; }
+scrollbar.horizontal { padding: 2px; }
+
+/* ---------- 标签页 ---------- */
+notebook > header {
+    background-color: transparent;
+    border: none;
+    padding: 2px;
+}
+notebook > header > tabs > tab {
+    min-height: 32px;
+    padding: 2px 16px;
+    border-radius: 8px;
+    border: none;
+    background-color: transparent;
+    color: @text-muted;
+    font-weight: 600;
+}
+notebook > header > tabs > tab:hover { background-color: rgba(27, 31, 39, 0.06); color: @text; }
+notebook > header > tabs > tab:checked {
+    background-color: @surface;
+    color: @accent-deep;
+    box-shadow: inset 0 -2px 0 @accent, 0 1px 3px rgba(16, 24, 40, 0.06);
+}
+
+/* ---------- 开关 ---------- */
+switch { background-color: #c9d2e2; border-radius: 9999px; }
+switch:checked { background-color: @accent; }
+switch:disabled { opacity: 0.5; }
+switch slider {
+    background-color: #ffffff;
+    border-radius: 9999px;
+    min-width: 20px;
+    min-height: 20px;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.25);
+}
+
+/* ---------- 进度条 ---------- */
+progressbar trough {
+    background-color: rgba(16, 24, 40, 0.08);
+    border-radius: 6px;
+    min-height: 8px;
+}
+progressbar progress { background-color: @accent; border-radius: 6px; }
+progressbar.osd { background-color: transparent; }
+
+/* ---------- 滑块 ---------- */
+scale trough {
+    background-color: rgba(16, 24, 40, 0.1);
+    border-radius: 6px;
+    min-height: 6px;
+}
+scale highlight { background-color: @accent; border-radius: 6px; }
+scale slider {
+    background-color: #ffffff;
+    border: 2px solid @accent;
+    border-radius: 9999px;
+    min-width: 16px;
+    min-height: 16px;
+    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.2);
+}
+scale slider:hover { background-color: #f2f7ff; }
+
+/* ---------- 菜单 / 弹出层（毛玻璃）---------- */
+menu, popover > contents, popover.background {
+    background-color: rgba(255, 255, 255, 0.82);
+    border-radius: 10px;
+    border: 1px solid rgba(201, 210, 226, 0.7);
+    box-shadow: 0 8px 24px rgba(16, 24, 40, 0.14),
+                inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    padding: 6px;
+}
+menuitem {
+    border-radius: 6px;
+    padding: 6px 12px;
+    color: @text;
+}
+menuitem:hover { background-color: @accent-soft; color: @text; }
+menuitem:disabled { color: @text-muted; }
+popover > contents > box > label { color: @text; }
+
+/* ---------- 下拉选择（毛玻璃）---------- */
+combobox button.combo {
+    min-height: 32px;
+    border-radius: 8px;
+    border: 1px solid rgba(201, 210, 226, 0.6);
+    background-color: rgba(255, 255, 255, 0.5);
+    background-image: linear-gradient(to bottom,
+        rgba(255, 255, 255, 0.7),
+        rgba(255, 255, 255, 0.35));
+    padding: 2px 10px;
+}
+combobox button.combo:hover { border-color: rgba(201, 210, 226, 0.85); }
+
+/* ---------- 工具提示 ---------- */
+tooltip, tooltip.background {
+    background-color: rgba(27, 31, 39, 0.92);
+    border-radius: 8px;
+    padding: 6px 10px;
+}
+tooltip label { color: #ffffff; }
+
+/* ---------- 分隔线 ---------- */
+separator { background-color: @border; min-height: 1px; min-width: 1px; }
+
+/* ---------- 边框 / 卡片 ---------- */
+frame > border { border-color: @border; border-radius: 10px; }
+.frame { border: 1px solid @border; border-radius: 10px; }
+
+/* ---------- 状态栏 / 信息条 ---------- */
+statusbar { background-color: transparent; color: @text-muted; }
+statusbar label { color: @text-muted; }
+infobar { border-radius: 10px; margin: 4px; }
+infobar > revealer > box { padding: 8px 12px; border-radius: 10px; }
+infobar.info { background-color: @accent-soft; color: @accent-deep; }
+infobar.warning { background-color: rgba(217, 119, 6, 0.15); color: #9a5b00; }
+infobar.error { background-color: rgba(220, 38, 38, 0.12); color: #a01212; }
+infobar.question { background-color: rgba(45, 127, 249, 0.12); color: @accent-deep; }
+
+/* ---------- 标签 ---------- */
+label { color: @text; }
+label:disabled { color: @text-muted; }
+.dim-label, label.dim-label { color: @text-muted; }
+
+/* ---------- 对话框辅助 ---------- */
+messagedialog, message-dialog { background-color: @bg; }
+messagedialog .dialog-action-area button { min-width: 90px; }

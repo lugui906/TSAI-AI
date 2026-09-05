@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 屏幕控制</title>
+<link rel="stylesheet" href="/chindshell/style.css">
+</head>
+<body>
+<header id="topbar">
+    <span class="brand">AI <em>屏幕控制</em></span>
+    <span class="brand-sub">tine 桌面操控 · 纯文本流</span>
+    <div class="spacer"></div>
+    <label style="display:flex;align-items:center;gap:6px;color:var(--text-2);font-size:12.5px;">
+        <input type="checkbox" id="autoScroll" checked> 自动滚动
+    </label>
+    <button class="chip" id="clearBtn">清屏</button>
+    <button class="chip primary" id="newBtn">＋ 新建对话</button>
+</header>
+
+<div id="layout">
+    <aside id="sidebar">
+        <button class="chip primary side-new" id="sideNew">＋ 新建对话</button>
+        <div class="side-sec grow">
+            <div class="side-title">📜 历史记录<span class="spacer"></span>
+                <button class="chip small" id="hClearBtn">清空</button>
+            </div>
+            <div class="side-body" id="historyList"><div class="empty">暂无记录</div></div>
+        </div>
+    </aside>
+
+    <main id="chatArea">
+        <div id="welcome">
+            <div class="welcome-title">AI <em>屏幕控制</em></div>
+            <div class="welcome-sub">让 AI 通过 tine 自动操控你的桌面。描述你想完成的任务即可，它会查询界面、执行操作并汇报结果。</div>
+            <div class="sugg">
+                <button class="sugg-chip" data-q="打开文件管理器">🗂 打开文件管理器</button>
+                <button class="sugg-chip" data-q="打开浏览器并搜索 TSAI-OS">🌐 打开浏览器搜索</button>
+                <button class="sugg-chip" data-q="截取当前屏幕并描述你看到的内容">📷 截图描述</button>
+                <button class="sugg-chip" data-q="打开终端并运行 neofetch">💻 打开终端运行 neofetch</button>
+            </div>
+        </div>
+        <div id="msgList" class="hidden"></div>
+        <div id="inputBar">
+            <input type="text" id="entry" placeholder="输入指令，回车发送；Shift+Enter 换行" autocomplete="off">
+            <button class="btn primary" id="sendBtn">发送</button>
+        </div>
+    </main>
+</div>
+
+<div id="statusbar"><span class="dot" id="statusDot"></span><span id="statusText">就绪</span></div>
+<div class="toast" id="toast"></div>
+
+<script src="static/app.js"></script>
+</body>
+</html>

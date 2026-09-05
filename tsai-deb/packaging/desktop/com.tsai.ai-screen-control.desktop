@@ -1,0 +1,17 @@
+[Desktop Entry]
+Type=Application
+Name=AI Screen Control
+Name[zh_CN]=AI屏幕控制
+Comment=AI自动操控屏幕、远程桌面工具
+Comment[zh_CN]=AI自动化模拟键鼠、屏幕识别控制
+Exec=python3 /usr/tsai-12/scr/main.py
+# 系统自带远程屏幕类标准图标名称，无需自定义图标文件
+Icon=remote-desktop
+Keywords=ai;screen;control;mouse;display;automate;vnc;remote
+# 菜单分类
+Categories=System;Utility;Accessibility;
+StartupWMClass=com.tsai.ai-screen-control
+Terminal=false
+NoDisplay=false
+X-GNOME-UsesNotifications=true
+X-KDE-StartupNotify=true

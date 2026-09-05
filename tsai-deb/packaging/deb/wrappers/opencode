@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# opencode 入口：按目标机架构选择预制二进制（amd64 / arm64）
+ARCH="$(dpkg --print-architecture 2>/dev/null || echo amd64)"
+case "$ARCH" in
+  arm64|aarch64) BIN="/usr/lib/tsai-12/opencode/opencode-linux-arm64" ;;
+  *)             BIN="/usr/lib/tsai-12/opencode/opencode-linux-x64" ;;
+esac
+exec "$BIN" "$@"

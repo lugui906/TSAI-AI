@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=AI定时器
+Comment=系统级 AI 实时语音字幕（Whisper base 本地模型）
+Exec=clockai gui
+Icon=alarm-clock
+Terminal=false
+StartupWMClass=com.tsai.ai-timer
+Categories=Utility;Accessibility;

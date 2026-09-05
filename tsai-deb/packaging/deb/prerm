@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+# chindows 卸装前：停用/禁用相关用户服务（尽力而为）
+systemctl --user stop chinai3-app 2>/dev/null || true
+systemctl --user stop tsai-airgestured 2>/dev/null || true
+systemctl --user disable chinai3-app 2>/dev/null || true
+systemctl --user disable tsai-airgestured 2>/dev/null || true
+exit 0

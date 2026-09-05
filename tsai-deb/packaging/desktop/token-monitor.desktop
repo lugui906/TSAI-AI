@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Token Monitor
+Name[zh_CN]=Token 管理器
+Comment=Real-time token, cost, and AI limits widget with multi-device sync for Claude Code, Codex, OpenCode and more.
+Comment[zh_CN]=实时查看 token 用量、费用和 AI 限额，支持多设备同步
+Exec=/usr/tsai-12/l/token-monitor.sh
+Icon=utilities-system-monitor
+Terminal=false
+Categories=Development;
+Keywords=token;monitor;ai;cost;openai;claude;
+StartupWMClass=Token Monitor

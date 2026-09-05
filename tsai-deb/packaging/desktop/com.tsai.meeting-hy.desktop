@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=会议概括
+Name[en_US]=Meeting Summary
+Comment=在线会议录音与 AI 概括（PipeWire + AIM）
+Comment[en_US]=Online meeting recording & AI summarization
+Exec=python3 /usr/tsai-12/hy/app.py
+Icon=audio-input-microphone
+Terminal=false
+Categories=Utility;Accessibility;
+Keywords=meeting;record;summary;会议;录音;纪要;AI;
+StartupNotify=true
+NoDisplay=false
+StartupWMClass=com.tsai.meeting-hy

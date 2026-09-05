@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClockAI 定时任务</title>
+<link rel="stylesheet" href="/chindshell/style.css">
+</head>
+<body>
+<header id="topbar">
+    <span class="brand">Clock<em>AI</em></span>
+    <span class="brand-sub">定时任务调度</span>
+    <div class="spacer"></div>
+    <button class="chip" id="refreshBtn">刷新</button>
+    <button class="chip primary" id="schedBtn">启动调度器</button>
+</header>
+
+<div id="layout">
+    <div class="pane main">
+        <div class="pane-body" style="padding:0;">
+            <table class="data" id="taskTable">
+                <thead>
+                    <tr><th>ID</th><th>时间</th><th>周期</th><th>提示词</th><th>启用</th><th>上次运行</th><th>结果</th></tr>
+                </thead>
+                <tbody id="taskBody"></tbody>
+            </table>
+            <div id="taskEmpty" class="empty hidden">暂无任务</div>
+        </div>
+        <div style="padding:10px 12px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center;">
+            <button class="btn primary" id="addBtn">＋ 添加任务</button>
+            <button class="btn" id="editBtn" disabled>编辑</button>
+            <button class="btn" id="toggleBtn" disabled>禁用/启用</button>
+            <button class="btn" id="runBtn" disabled>立即执行</button>
+            <button class="btn danger" id="delBtn" disabled>删除</button>
+            <div class="spacer" style="flex:1"></div>
+            <span style="font-size:12px;color:var(--text-2)">双击行查看详情</span>
+        </div>
+    </div>
+</div>
+
+<div id="statusbar"><span class="dot" id="statusDot"></span><span id="statusText">调度器: 已停止</span></div>
+<div class="toast" id="toast"></div>
+
+<div class="modal-back hidden" id="modalBack">
+    <div class="modal">
+        <div class="modal-head">添加任务<span class="spacer"></span><button class="chip" id="modalClose">✕</button></div>
+        <div class="modal-body">
+            <div class="form">
+                <div class="row"><label>提示词</label><input type="text" id="f_prompt" placeholder="要执行的 AI 任务"></div>
+                <div class="row"><label>时间 (HH:MM)</label><input type="text" id="f_time" placeholder="如 09:30"></div>
+                <div class="row"><label>周期</label>
+                    <select id="f_period">
+                        <option value="daily">daily</option>
+                        <option value="hourly">hourly</option>
+                        <option value="interval:5">interval:5</option>
+                        <option value="interval:10">interval:10</option>
+                        <option value="interval:30">interval:30</option>
+                        <option value="interval:60">interval:60</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button class="btn" id="modalCancel">取消</button>
+            <button class="btn primary" id="modalSave">保存</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-back hidden" id="detailBack">
+    <div class="modal">
+        <div class="modal-head">任务详情<span class="spacer"></span><button class="chip" id="detailClose">✕</button></div>
+        <div class="modal-body">
+            <div class="form">
+                <div class="row"><label>ID</label><span id="d_id" style="font-family:var(--mono);font-size:12px;"></span></div>
+                <div class="row area"><label>提示词</label><div id="d_prompt" style="white-space:pre-wrap;line-height:1.6;"></div></div>
+                <div class="row area"><label>结果</label><div id="d_result" style="white-space:pre-wrap;line-height:1.6;max-height:280px;overflow-y:auto;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px;"></div></div>
+            </div>
+        </div>
+        <div class="modal-foot"><button class="btn" id="detailOk">关闭</button></div>
+    </div>
+</div>
+
+<script src="static/app.js"></script>
+</body>
+</html>

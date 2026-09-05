@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=AI记事本
+Comment=AI-powered text editor for Chindows
+Exec=/usr/tsai-12/ainote2/main
+Terminal=false
+Icon=gnome-text-editor
+StartupWMClass=com.tsai.ai-note
+Type=Application
+Categories=Office;TextEditor;Utility;GTK;GNOME;
+Keywords=note;text;write;ai;editor;文档;笔记;写作;
+NoDisplay=false
+
+SingleMainWindow=true

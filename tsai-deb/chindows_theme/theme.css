@@ -1,0 +1,795 @@
+/* ============================================================
+   chindows 统一主题 (TSAI-OS)
+   GTK3 / GTK4 通用样式表 — macOS 26 控制中心质感
+   雾化玻璃材质 · 大圆角模块/胶囊 · 亮蓝=激活 / 半透明灰=未激活
+   用法：chindows_theme/style.py 中的 apply_gtk3() / apply_gtk4()
+   ============================================================ */
+
+@define-color accent       #2d7ff9;
+@define-color accent-deep  #1a66e0;
+@define-color accent-soft  rgba(45, 127, 249, 0.12);
+@define-color bg           #f4f6f9;
+@define-color surface      #ffffff;
+@define-color surface-alt  #f8fafc;
+@define-color border       #e2e6ee;
+@define-color border-strong #c9d2e2;
+@define-color text         #1b1f27;
+@define-color text-muted   #697386;
+@define-color ok           #16a34a;
+@define-color warn         #d97706;
+@define-color err          #dc2626;
+
+/* 动效：只作用于交互控件，避免顶栏/窗口整块重绘闪烁 */
+button, entry, spinbutton, list > row, notebook > header > tabs > tab,
+combobox button, switch, scale slider {
+    transition: 120ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+headerbar, .titlebar, window, window.background, decoration, dialog, menu, popover, tooltip {
+    transition: none;
+}
+
+/* ---------- 窗口 ----------
+   不透明实色背景（彻底去除虚化/磨砂）。
+   窗口圆角由 decoration 外框提供（window 背景设圆角会渲染成黑边）。 */
+window, window.background {
+    background-color: @bg;
+    background-image: linear-gradient(135deg, #dceefa 0%, #fde6ee 100%);
+    border-radius: 0;
+    color: @text;
+}
+decoration {
+    border-radius: 20px;
+    box-shadow: none;
+}
+dialog {
+    background-color: @surface;
+    color: @text;
+}
+
+/* ---------- 标题栏（纯实色）----------
+   完全不透明，无任何虚化/半透明。 */
+headerbar, .titlebar {
+    background-color: #ffffff;
+    background-image: none;
+    border-bottom: 1px solid #e2e6ee;
+    color: @text;
+    padding: 0 12px;
+    min-height: 44px;
+    box-shadow: none;
+}
+headerbar label, .titlebar label { color: @text; }
+headerbar button, .titlebar button {
+    background-color: transparent;
+    border-color: transparent;
+    min-height: 28px;
+    padding: 3px 12px;
+    margin: 0;
+}
+headerbar button:hover, .titlebar button:hover {
+    background-color: rgba(27, 31, 39, 0.07);
+    border-color: transparent;
+}
+headerbar button:active, .titlebar button:active {
+    background-color: rgba(27, 31, 39, 0.12);
+    border-color: transparent;
+}
+
+/* ---------- 窗口控制按钮（右上角 最小化/最大化/关闭）----------
+   还原 GNOME 默认的紧凑间距，避免被通用 button 规则撑大。
+   GTK3 用 .titlebutton；GTK4 的 windowcontrols 按钮是 image-button。 */
+headerbar button.titlebutton, .titlebar button.titlebutton,
+button.titlebutton {
+    min-width: 22px;
+    min-height: 22px;
+    padding: 5px;
+    margin: 0 2px;
+    border-radius: 9999px;
+    border: none;
+    background-color: transparent;
+    background-image: none;
+    box-shadow: none;
+}
+headerbar button.titlebutton:hover, .titlebar button.titlebutton:hover,
+button.titlebutton:hover {
+    background-color: rgba(27, 31, 39, 0.08);
+    border: none;
+}
+
+/* GTK4 窗口控制按钮：跟随主题默认紧凑尺寸（内部 image 决定大小），
+   只去掉通用 button 的撑高/撑宽，不额外加 padding。
+   特异性需高于后面的 button.image-button 规则。 */
+windowcontrols button, windowcontrols button.image-button {
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
+    margin: 0 1px;
+    border: none;
+    background-color: transparent;
+    background-image: none;
+    box-shadow: none;
+    border-radius: 0;
+}
+windowcontrols button:hover, windowcontrols button.image-button:hover {
+    background-color: transparent;
+    border: none;
+}
+
+/* ---------- 普通按钮（雾化玻璃 + 光效）----------
+   半透明玻璃基底 + 顶部高光（玻璃折射光）+ 发丝亮边；
+   hover 泛出蓝色辉光，按下内凹。 */
+button {
+    min-height: 32px;
+    padding: 3px 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.4);
+    background-color: rgba(255, 255, 255, 0.4);
+    background-image: linear-gradient(to bottom,
+        rgba(255, 255, 255, 0.5) 0%,
+        rgba(255, 255, 255, 0.18) 46%,
+        rgba(239, 242, 247, 0.15) 100%);
+    color: @text;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 1),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.3),
+                inset 0 -1px 2px rgba(120, 135, 160, 0.1),
+                0 1px 3px rgba(16, 24, 40, 0.07);
+    font-weight: 500;
+}
+button:hover {
+    border-color: rgba(0, 0, 0, 0.5);
+    background-image: linear-gradient(to bottom,
+        rgba(255, 255, 255, 1) 0%,
+        rgba(255, 255, 255, 0.5) 46%,
+        rgba(244, 247, 251, 0.4) 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 1),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.4),
+                0 2px 8px rgba(45, 127, 249, 0.22);
+}
+button:active {
+    background-image: linear-gradient(to bottom,
+        rgba(226, 232, 240, 0.55),
+        rgba(255, 255, 255, 0.32));
+    border-color: rgba(0, 0, 0, 0.5);
+    box-shadow: inset 0 2px 4px rgba(16, 24, 40, 0.14);
+}
+button:disabled { opacity: 0.45; }
+button:checked {
+    background-color: @accent-soft;
+    border-color: @accent;
+    color: @accent-deep;
+    background-image: linear-gradient(to bottom,
+        rgba(45, 127, 249, 0.18),
+        rgba(45, 127, 249, 0.06));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6),
+                0 1px 4px rgba(45, 127, 249, 0.18);
+}
+/* 主操作按钮：雾化玻璃 + 蓝色光效（胶囊形）+ 加粗强调边框 */
+button.suggested-action, button.flat.suggested-action {
+    border-radius: 9999px;
+    border: 2px solid rgba(26, 102, 224, 0.95);
+    background-color: rgba(45, 127, 249, 0.88);
+    background-image: linear-gradient(to bottom,
+        rgba(104, 174, 255, 0.98) 0%,
+        rgba(45, 127, 249, 1) 52%,
+        rgba(32, 109, 230, 1) 100%);
+    color: #ffffff;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.2),
+                inset 0 -1px 2px rgba(26, 102, 224, 0.45),
+                0 2px 10px rgba(45, 127, 249, 0.42);
+}
+button.suggested-action:hover {
+    border-color: rgba(20, 90, 210, 1);
+    background-image: linear-gradient(to bottom,
+        rgba(122, 186, 255, 0.98) 0%,
+        rgba(55, 136, 250, 1) 52%,
+        rgba(40, 118, 240, 1) 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45),
+                0 3px 14px rgba(45, 127, 249, 0.55);
+}
+button.suggested-action:active {
+    background-image: linear-gradient(to bottom,
+        rgba(32, 109, 230, 1) 0%,
+        rgba(45, 127, 249, 1) 100%);
+    border-color: rgba(16, 70, 180, 1);
+    box-shadow: inset 0 2px 6px rgba(16, 60, 160, 0.5),
+                0 1px 6px rgba(45, 127, 249, 0.35);
+}
+button.destructive-action {
+    border-radius: 9999px;
+    border: 2px solid rgba(185, 28, 28, 0.95);
+    background-color: rgba(220, 38, 38, 0.9);
+    background-image: linear-gradient(to bottom,
+        rgba(255, 107, 99, 0.98) 0%,
+        rgba(224, 36, 36, 1) 52%,
+        rgba(195, 30, 30, 1) 100%);
+    color: #ffffff;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4),
+                0 2px 10px rgba(220, 38, 38, 0.4);
+}
+button.destructive-action:hover {
+    border-color: rgba(160, 24, 24, 1);
+    background-image: linear-gradient(to bottom,
+        rgba(255, 130, 122, 0.98) 0%,
+        rgba(237, 51, 51, 1) 52%,
+        rgba(214, 40, 40, 1) 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45),
+                0 3px 14px rgba(220, 38, 38, 0.55);
+}
+button.image-button { padding: 3px 10px; border-radius: 10px; }
+button.flat { background-color: transparent; border-color: transparent; background-image: none; box-shadow: none; }
+button.flat:hover { background-color: rgba(27, 31, 39, 0.06); background-image: none; box-shadow: none; }
+button.circular { border-radius: 9999px; }
+
+/* ---------- 输入框（macOS 材质）----------
+   浅灰玻璃填充 + 发丝边框 + 内嵌投影，聚焦时蓝色光晕。 */
+entry, spinbutton {
+    min-height: 32px;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.22);
+    background-color: rgba(255, 255, 255, 0.9);
+    background-image: linear-gradient(to bottom,
+        rgba(255, 255, 255, 0.95),
+        rgba(246, 246, 248, 0.9));
+    color: @text;
+    padding: 3px 12px;
+    caret-color: @accent;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05),
+                0 1px 0 rgba(255, 255, 255, 0.5);
+}
+entry:hover, spinbutton:hover { border-color: rgba(0, 0, 0, 0.3); }
+entry:focus, entry:focus-within, spinbutton:focus {
+    border-color: @accent;
+    background-color: rgba(255, 255, 255, 1);
+    box-shadow: 0 0 0 3px @accent-soft, inset 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+entry:disabled, spinbutton:disabled { opacity: 0.5; }
+entry image, spinbutton image { color: @text-muted; }
+
+selection { background-color: @accent-soft; color: @accent-deep; }
+
+/* ---------- 文本视图（macOS 材质）---------- */
+textview, textview.view {
+    background-color: rgba(255, 255, 255, 0.85);
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    color: @text;
+    padding: 8px;
+}
+textview text { background-color: transparent; color: @text; }
+textview:focus, textview:focus-within { border-color: @accent; box-shadow: 0 0 0 3px @accent-soft; }
+
+/* ---------- 视图 / 列表 ---------- */
+.view { background-color: rgba(255, 255, 255, 0.35); color: @text; }
+.view:selected, .view:selected:focus { background-color: @accent; color: #ffffff; }
+
+list { background-color: transparent; }
+list > row {
+    border-radius: 14px;
+    margin: 2px 8px;
+    padding: 9px 14px;
+    background-color: transparent;
+    transition: 120ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+list > row:hover { background-color: rgba(45, 127, 249, 0.08); }
+list > row:selected, list > row:selected:focus {
+    background-color: @accent;
+    color: #ffffff;
+}
+list > row:selected label { color: #ffffff; }
+
+treeview, treeview.view {
+    background-color: rgba(255, 255, 255, 0.3);
+    color: @text;
+}
+treeview.view:selected, treeview.view:selected:focus {
+    background-color: @accent;
+    color: #ffffff;
+}
+treeview header button {
+    background-color: #f4f6f9;
+    border: none;
+    border-bottom: 1px solid @border;
+    border-radius: 0;
+    box-shadow: none;
+    font-weight: 600;
+    color: @text-muted;
+}
+treeview header button:hover { background-color: #eef1f6; color: @text; }
+
+/* ---------- 滚动区域 / 滚动条（macOS 悬浮细条）---------- */
+scrolledwindow { background-color: transparent; }
+scrollbar { background-color: transparent; }
+scrollbar trough {
+    background-color: rgba(16, 24, 40, 0.06);
+    border-radius: 8px;
+}
+scrollbar slider {
+    background-color: rgba(16, 24, 40, 0.22);
+    border-radius: 8px;
+    min-width: 8px;
+    min-height: 8px;
+}
+scrollbar slider:hover { background-color: rgba(16, 24, 40, 0.36); }
+scrollbar slider:active { background-color: @accent; }
+scrollbar.vertical { padding: 3px; }
+scrollbar.horizontal { padding: 3px; }
+
+/* ---------- 标签页（macOS 分段控件质感）---------- */
+notebook > header {
+    background-color: transparent;
+    border: none;
+    padding: 4px;
+}
+notebook > header > tabs > tab {
+    min-height: 30px;
+    padding: 3px 18px;
+    border-radius: 9px;
+    border: none;
+    background-color: transparent;
+    color: @text-muted;
+    font-weight: 500;
+}
+notebook > header > tabs > tab:hover { background-color: rgba(27, 31, 39, 0.05); color: @text; }
+notebook > header > tabs > tab:checked {
+    background-color: @surface;
+    color: @text;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* ---------- 开关（亮蓝=开启 / 半透明灰=关闭）---------- */
+switch { background-color: rgba(0, 0, 0, 0.14); border-radius: 9999px; }
+switch:hover { background-color: rgba(0, 0, 0, 0.18); }
+switch:checked { background-color: @accent; }
+switch:checked:hover { background-color: @accent-deep; }
+switch:disabled { opacity: 0.45; }
+switch slider {
+    background-color: #ffffff;
+    border-radius: 9999px;
+    min-width: 22px;
+    min-height: 22px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ---------- 进度条 ---------- */
+progressbar trough {
+    background-color: rgba(16, 24, 40, 0.08);
+    border-radius: 8px;
+    min-height: 8px;
+}
+progressbar progress { background-color: @accent; border-radius: 8px; }
+progressbar.osd { background-color: transparent; }
+
+/* ---------- 滑块（macOS 细轨 + 白色圆钮）---------- */
+scale trough {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    min-height: 4px;
+}
+scale highlight { background-color: @accent; border-radius: 8px; }
+scale slider {
+    background-color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 9999px;
+    min-width: 18px;
+    min-height: 18px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
+}
+scale slider:hover { background-color: #ffffff; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22); }
+
+/* ---------- 复选框 / 单选框（macOS 圆角方块）---------- */
+check, radio {
+    min-width: 17px;
+    min-height: 17px;
+    border-radius: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    background-color: #ffffff;
+    background-image: none;
+    box-shadow: none;
+    color: #ffffff;
+}
+check:hover, radio:hover { border-color: @accent; }
+check:active, radio:active { background-color: #eef3fd; }
+check:checked, radio:checked {
+    background-color: @accent;
+    border-color: @accent;
+    color: #ffffff;
+}
+check:checked:disabled, radio:checked:disabled { opacity: 0.5; }
+radio { border-radius: 9999px; }
+
+/* ---------- 菜单 / 弹出层（毛玻璃）---------- */
+menu, popover > contents, popover.background {
+    background-color: rgba(255, 255, 255, 0.86);
+    border-radius: 16px;
+    border: 1px solid rgba(201, 210, 226, 0.7);
+    box-shadow: 0 12px 32px rgba(16, 24, 40, 0.14),
+                inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    padding: 6px;
+}
+menuitem {
+    border-radius: 10px;
+    padding: 8px 14px;
+    color: @text;
+}
+menuitem:hover { background-color: @accent-soft; color: @text; }
+menuitem:disabled { color: @text-muted; }
+popover > contents > box > label { color: @text; }
+
+/* ---------- 下拉选择（macOS 材质）---------- */
+combobox button.combo {
+    min-height: 32px;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.22);
+    background-color: rgba(255, 255, 255, 0.9);
+    background-image: linear-gradient(to bottom,
+        rgba(255, 255, 255, 0.95),
+        rgba(246, 246, 248, 0.9));
+    padding: 3px 12px;
+}
+combobox button.combo:hover { border-color: rgba(0, 0, 0, 0.3); }
+
+/* ---------- 工具提示 ---------- */
+tooltip, tooltip.background {
+    background-color: rgba(27, 31, 39, 0.92);
+    border-radius: 12px;
+    padding: 7px 12px;
+    box-shadow: 0 4px 16px rgba(16, 24, 40, 0.18);
+}
+tooltip label { color: #ffffff; }
+
+/* ---------- 分隔线 ---------- */
+separator { background-color: @border; min-height: 1px; min-width: 1px; }
+
+/* ---------- 边框 / 卡片 ---------- */
+frame > border { border-color: @border; border-radius: 20px; }
+.frame { border: 1px solid @border; border-radius: 20px; }
+
+/* ---------- 状态栏 / 信息条 ---------- */
+statusbar { background-color: transparent; color: @text-muted; }
+statusbar label { color: @text-muted; }
+infobar { border-radius: 14px; margin: 4px; }
+infobar > revealer > box { padding: 10px 14px; border-radius: 14px; }
+infobar.info { background-color: @accent-soft; color: @accent-deep; }
+infobar.warning { background-color: rgba(217, 119, 6, 0.15); color: #9a5b00; }
+infobar.error { background-color: rgba(220, 38, 38, 0.12); color: #a01212; }
+infobar.question { background-color: rgba(45, 127, 249, 0.12); color: @accent-deep; }
+
+/* ---------- 标签 ---------- */
+label { color: @text; }
+label:disabled { color: @text-muted; }
+.dim-label, label.dim-label { color: @text-muted; }
+
+/* ---------- 对话框辅助 ---------- */
+messagedialog, message-dialog { background-color: @bg; }
+messagedialog .dialog-action-area button { min-width: 92px; }
+
+/* ============================================================
+   macOS 26 控制中心模块语言
+   供应用层使用（widget.get_style_context().add_class(...)）：
+
+   · .module        大圆角雾化玻璃方块 —— 网络 / 音乐等组合区
+   · .cell          格子单元（略小圆角）
+   · .capsule       胶囊（长条圆钮）
+   · .toggle-row    长条形开关行按钮（如“VPN 打开 / 低电量模式”）
+   · .active        亮蓝 = 已开启 / 激活
+   · .off      半透明灰 = 关闭 / 未激活
+   ============================================================ */
+.module {
+    border-radius: 22px;
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    background-color: rgba(255, 255, 255, 0.55);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8),
+                inset 0 -1px 1px rgba(120, 135, 160, 0.08),
+                0 4px 20px rgba(16, 24, 40, 0.08);
+}
+.cell {
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    background-color: rgba(255, 255, 255, 0.55);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8),
+                0 2px 10px rgba(16, 24, 40, 0.06);
+}
+.capsule, .module-capsule, .toggle-row {
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    background-color: rgba(255, 255, 255, 0.6);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85),
+                0 2px 10px rgba(16, 24, 40, 0.06);
+}
+.active {
+    background-color: @accent;
+    background-image: linear-gradient(to bottom,
+        rgba(112, 178, 255, 1),
+        rgba(45, 127, 249, 1));
+    border-color: rgba(255, 255, 255, 0.5);
+    color: #ffffff;
+}
+.off, .toggle-row.off {
+    background-color: rgb(232, 234, 238);
+    background-image: linear-gradient(to bottom,
+        rgba(236, 238, 242, 1),
+        rgba(224, 226, 231, 1));
+    border-color: rgba(0, 0, 0, 0.06);
+    color: @text-muted;
+}
+
+/* ============================================================
+   深色模式 — 跟随系统 `color-scheme` / `prefers-color-scheme`。
+
+   · GTK4：本块由 `@media` 包裹，运行时自动跟随系统深浅色切换；
+   · GTK3：该构建不支持 `@media`，style.apply_gtk3() 会用 DARK_BEGIN /
+     DARK_END 标记提取出其中的深色规则，在检测到系统深色时以字面值追加。
+   @define-color 无法在媒体查询内重定义，故此处以字面值覆盖各组件颜色。
+   ============================================================ */
+/* DARK_BEGIN */
+@media (prefers-color-scheme: dark) {
+
+window, window.background {
+    background-color: #14161a;
+    background-image: linear-gradient(135deg, #22314d 0%, #45304e 100%);
+    color: #e7eaf0;
+}
+dialog {
+    background-color: #1d2026;
+    color: #e7eaf0;
+}
+
+headerbar, .titlebar {
+    background-color: #1a1d23;
+    border-bottom: 1px solid #2b2f38;
+    color: #e7eaf0;
+}
+headerbar label, .titlebar label { color: #e7eaf0; }
+headerbar button:hover, .titlebar button:hover { background-color: rgba(231, 234, 240, 0.08); }
+headerbar button:active, .titlebar button:active { background-color: rgba(231, 234, 240, 0.14); }
+
+headerbar button.titlebutton:hover, .titlebar button.titlebutton:hover,
+button.titlebutton:hover { background-color: rgba(231, 234, 240, 0.12); }
+
+button {
+    border: 1px solid rgba(255, 255, 255, 0.52);
+    background-color: rgba(38, 42, 52, 0.5);
+    background-image: linear-gradient(to bottom,
+        rgba(58, 63, 76, 0.85) 0%,
+        rgba(34, 38, 47, 0.5) 100%);
+    color: #e7eaf0;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+                0 1px 3px rgba(0, 0, 0, 0.35);
+}
+button:hover {
+    border-color: rgba(255, 255, 255, 0.66);
+    background-image: linear-gradient(to bottom,
+        rgba(70, 76, 92, 0.9) 0%,
+        rgba(40, 44, 54, 0.55) 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12),
+                0 2px 10px rgba(74, 147, 255, 0.25);
+}
+button:active {
+    background-image: linear-gradient(to bottom,
+        rgba(28, 31, 39, 0.9) 0%,
+        rgba(40, 44, 54, 0.55) 100%);
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.45);
+}
+button:checked {
+    background-color: rgba(74, 147, 255, 0.18);
+    border-color: #4a93ff;
+    color: #8ab9ff;
+    background-image: linear-gradient(to bottom,
+        rgba(74, 147, 255, 0.22),
+        rgba(74, 147, 255, 0.08));
+}
+button.suggested-action, button.flat.suggested-action {
+    border: 2px solid rgba(74, 147, 255, 0.95);
+    background-color: rgba(45, 127, 249, 0.9);
+    background-image: linear-gradient(to bottom,
+        rgba(104, 174, 255, 0.95) 0%,
+        rgba(45, 127, 249, 1) 52%,
+        rgba(32, 109, 230, 1) 100%);
+    color: #ffffff;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35),
+                0 2px 12px rgba(45, 127, 249, 0.4);
+}
+button.suggested-action:hover {
+    border-color: rgba(112, 178, 255, 1);
+    background-image: linear-gradient(to bottom,
+        rgba(122, 186, 255, 0.95) 0%,
+        rgba(55, 136, 250, 1) 52%,
+        rgba(40, 118, 240, 1) 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4),
+                0 3px 16px rgba(74, 147, 255, 0.55);
+}
+button.destructive-action {
+    border: 2px solid rgba(248, 113, 113, 0.9);
+    background-color: rgba(220, 38, 38, 0.9);
+    background-image: linear-gradient(to bottom,
+        rgba(255, 107, 99, 0.95) 0%,
+        rgba(224, 36, 36, 1) 52%,
+        rgba(195, 30, 30, 1) 100%);
+    color: #ffffff;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35),
+                0 2px 12px rgba(220, 38, 38, 0.4);
+}
+button.destructive-action:hover {
+    border-color: rgba(252, 165, 165, 1);
+    background-image: linear-gradient(to bottom,
+        rgba(255, 130, 122, 0.95) 0%,
+        rgba(237, 51, 51, 1) 52%,
+        rgba(214, 40, 40, 1) 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4),
+                0 3px 16px rgba(248, 113, 113, 0.5);
+}
+button.flat:hover { background-color: rgba(231, 234, 240, 0.08); background-image: none; box-shadow: none; }
+
+entry, spinbutton {
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background-color: rgba(30, 34, 42, 0.8);
+    background-image: linear-gradient(to bottom,
+        rgba(34, 38, 47, 0.85),
+        rgba(26, 29, 36, 0.85));
+    color: #e7eaf0;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+entry:hover, spinbutton:hover { border-color: rgba(255, 255, 255, 0.36); }
+entry:focus, entry:focus-within, spinbutton:focus {
+    border-color: #4a93ff;
+    background-color: rgba(34, 38, 47, 0.9);
+    box-shadow: 0 0 0 3px rgba(74, 147, 255, 0.25), inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+entry image, spinbutton image { color: #99a2b3; }
+
+selection { background-color: rgba(74, 147, 255, 0.28); color: #c6dcff; }
+
+textview, textview.view {
+    background-color: rgba(24, 27, 34, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #e7eaf0;
+}
+textview text { background-color: transparent; color: #e7eaf0; }
+textview:focus, textview:focus-within { border-color: #4a93ff; box-shadow: 0 0 0 3px rgba(74, 147, 255, 0.22); }
+
+.view { background-color: rgba(24, 27, 34, 0.5); color: #e7eaf0; }
+.view:selected, .view:selected:focus { background-color: #2d7ff9; color: #ffffff; }
+
+list { background-color: transparent; }
+list > row:hover { background-color: rgba(74, 147, 255, 0.14); }
+list > row:selected, list > row:selected:focus { background-color: #2d7ff9; color: #ffffff; }
+list > row:selected label { color: #ffffff; }
+
+treeview, treeview.view { background-color: rgba(24, 27, 34, 0.5); color: #e7eaf0; }
+treeview.view:selected, treeview.view:selected:focus { background-color: #2d7ff9; color: #ffffff; }
+treeview header button {
+    background-color: #1a1d23;
+    border-bottom: 1px solid #2b2f38;
+    color: #99a2b3;
+}
+treeview header button:hover { background-color: #22262e; color: #e7eaf0; }
+
+scrollbar trough { background-color: rgba(255, 255, 255, 0.08); }
+scrollbar slider { background-color: rgba(255, 255, 255, 0.24); }
+scrollbar slider:hover { background-color: rgba(255, 255, 255, 0.38); }
+scrollbar slider:active { background-color: #4a93ff; }
+
+notebook > header > tabs > tab { color: #99a2b3; }
+notebook > header > tabs > tab:hover { background-color: rgba(231, 234, 240, 0.08); color: #e7eaf0; }
+notebook > header > tabs > tab:checked {
+    background-color: #1d2026;
+    color: #e7eaf0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+switch { background-color: rgba(255, 255, 255, 0.18); }
+switch:hover { background-color: rgba(255, 255, 255, 0.24); }
+switch:checked { background-color: #2d7ff9; }
+switch:checked:hover { background-color: #4a93ff; }
+switch slider { background-color: #e7eaf0; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35); }
+
+progressbar trough { background-color: rgba(255, 255, 255, 0.1); }
+progressbar progress { background-color: #4a93ff; }
+
+scale trough { background-color: rgba(255, 255, 255, 0.12); }
+scale highlight { background-color: #4a93ff; }
+scale slider {
+    background-color: #e7eaf0;
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+scale slider:hover { background-color: #ffffff; }
+
+check, radio {
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background-color: #2a2d35;
+    color: #ffffff;
+}
+check:hover, radio:hover { border-color: #4a93ff; }
+check:active, radio:active { background-color: #333844; }
+check:checked, radio:checked {
+    background-color: #4a93ff;
+    border-color: #4a93ff;
+    color: #ffffff;
+}
+
+menu, popover > contents, popover.background {
+    background-color: rgba(29, 32, 38, 0.92);
+    border-color: rgba(90, 100, 120, 0.5);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+menuitem { color: #e7eaf0; }
+menuitem:hover { background-color: rgba(74, 147, 255, 0.2); color: #e7eaf0; }
+menuitem:disabled { color: #68707f; }
+popover > contents > box > label { color: #e7eaf0; }
+
+combobox button.combo {
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background-color: rgba(30, 34, 42, 0.8);
+    background-image: linear-gradient(to bottom,
+        rgba(34, 38, 47, 0.85),
+        rgba(26, 29, 36, 0.85));
+}
+combobox button.combo:hover { border-color: rgba(255, 255, 255, 0.36); }
+
+tooltip, tooltip.background {
+    background-color: rgba(220, 226, 238, 0.95);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+tooltip label { color: #14161a; }
+
+separator { background-color: #2b2f38; }
+
+frame > border { border-color: #2b2f38; }
+.frame { border-color: #2b2f38; }
+
+statusbar { color: #99a2b3; }
+statusbar label { color: #99a2b3; }
+infobar.info { background-color: rgba(74, 147, 255, 0.2); color: #8ab9ff; }
+infobar.warning { background-color: rgba(251, 191, 36, 0.16); color: #fbbf24; }
+infobar.error { background-color: rgba(248, 113, 113, 0.16); color: #fca5a5; }
+infobar.question { background-color: rgba(74, 147, 255, 0.2); color: #8ab9ff; }
+
+label { color: #e7eaf0; }
+label:disabled { color: #68707f; }
+.dim-label, label.dim-label { color: #99a2b3; }
+
+messagedialog, message-dialog { background-color: #14161a; }
+
+/* macOS 26 模块（深色） */
+.module {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background-color: rgba(38, 42, 52, 0.6);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08),
+                0 4px 20px rgba(0, 0, 0, 0.3);
+}
+.cell {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(38, 42, 52, 0.6);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08),
+                0 2px 10px rgba(0, 0, 0, 0.25);
+}
+.capsule, .module-capsule, .toggle-row {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background-color: rgba(38, 42, 52, 0.6);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08),
+                0 2px 10px rgba(0, 0, 0, 0.25);
+}
+.active {
+    background-color: #2d7ff9;
+    background-image: linear-gradient(to bottom,
+        rgba(112, 178, 255, 0.95),
+        rgba(45, 127, 249, 1));
+    border-color: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+}
+.off, .toggle-row.off {
+    background-color: rgb(45, 49, 58);
+    background-image: linear-gradient(to bottom,
+        rgba(52, 57, 68, 1),
+        rgba(38, 42, 51, 1));
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #99a2b3;
+}
+
+}
+/* DARK_END */

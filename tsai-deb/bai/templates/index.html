@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 智能体</title>
+<link rel="stylesheet" href="/chindshell/style.css">
+</head>
+<body>
+<header id="topbar">
+    <span class="brand">AI <em>智能体</em></span>
+    <span class="brand-sub">创建角色 · 扮演对话</span>
+    <div class="spacer"></div>
+    <button class="chip primary" id="newBtn">＋ 新对话</button>
+</header>
+
+<div id="layout">
+    <aside id="sidebar">
+        <button class="chip primary side-new" id="sideNew">＋ 新对话</button>
+
+        <div class="side-sec" id="agentSec">
+            <div class="side-title">👤 角色<span class="spacer"></span>
+                <button class="chip small primary" id="addAgentBtn">＋ 新建</button>
+                <button class="chip small" id="editAgentBtn" disabled>编辑</button>
+                <button class="chip small danger" id="delAgentBtn" disabled>删除</button>
+            </div>
+            <div class="side-body"><div id="agentList" class="list"></div></div>
+        </div>
+
+        <div class="side-sec grow">
+            <div class="side-title">📜 历史记录<span class="spacer"></span>
+                <button class="chip small" id="hClearBtn">清空</button>
+            </div>
+            <div class="side-body" id="historyList"><div class="empty">暂无记录</div></div>
+        </div>
+    </aside>
+
+    <main id="chatArea">
+        <div id="welcome">
+            <div class="welcome-title">AI <em>智能体</em></div>
+            <div class="welcome-sub">先在左侧选择一个角色，或点击「＋ 新建」创建一个。角色会以设定的人物性格、规则与你对话。</div>
+            <div class="sugg">
+                <button class="sugg-chip" id="suggCreate">＋ 创建我的第一个角色</button>
+            </div>
+        </div>
+        <div id="msgList" class="hidden"></div>
+        <div id="inputBar">
+            <input type="text" id="entry" placeholder="输入消息，回车发送…" autocomplete="off">
+            <button class="btn primary" id="sendBtn">发送</button>
+        </div>
+    </main>
+</div>
+
+<div id="statusbar"><span class="dot" id="statusDot"></span><span id="statusText">就绪</span></div>
+<div class="toast" id="toast"></div>
+
+<div class="modal-back hidden" id="modalBack">
+    <div class="modal">
+        <div class="modal-head">创建角色<span class="spacer"></span><button class="chip" id="modalClose">✕</button></div>
+        <div class="modal-body">
+            <div class="form">
+                <div class="row"><label>名称</label><input type="text" id="f_name" placeholder="如：老师"></div>
+                <div class="row"><label>职位/身份</label><input type="text" id="f_role" placeholder="如：Python 导师"></div>
+                <div class="row"><label>简介</label><input type="text" id="f_description" placeholder="一句话介绍"></div>
+                <div class="row area"><label>提示词</label><textarea id="f_prompt" placeholder="角色扮演提示词"></textarea></div>
+                <div class="row area"><label>性格</label><textarea id="f_personality" placeholder="性格特点"></textarea></div>
+                <div class="row area"><label>背景</label><textarea id="f_background" placeholder="背景设定"></textarea></div>
+                <div class="row area"><label>规则</label><textarea id="f_rules" placeholder="行为规则"></textarea></div>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button class="btn" id="modalCancel">取消</button>
+            <button class="btn primary" id="modalSave">保存</button>
+        </div>
+    </div>
+</div>
+
+<script src="static/app.js"></script>
+</body>
+</html>

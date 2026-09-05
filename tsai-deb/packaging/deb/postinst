@@ -1,0 +1,56 @@
+#!/bin/bash
+set -e
+
+CHW="/usr/tsai-12"
+APPS="/usr/share/applications"
+PIP_PKGS="edge-tts faster-whisper pywhispercpp rapidocr-onnxruntime webrtcvad schedule SpeechRecognition"
+
+echo "==> chindows: 清理 __pycache__ / .pyc / egg-info"
+find "$CHW" -type d -name "__pycache__" -prune -exec rm -rf {} + 2>/dev/null || true
+find "$CHW" -type f -name "*.pyc" -delete 2>/dev/null || true
+find "$CHW" -type d -name "*.egg-info" -prune -exec rm -rf {} + 2>/dev/null || true
+
+echo "==> chindows: 设置入口可执行位"
+chmod -R u+rwX,a+rX "$CHW" 2>/dev/null || true
+chmod +x "$CHW/ainote2/main" "$CHW/l/token-monitor.sh" 2>/dev/null || true
+chmod +x "$CHW/packaging/build_zip.sh" "$CHW/packaging/install.sh" 2>/dev/null || true
+chmod -R +x "$CHW"/*/main.py 2>/dev/null || true
+
+echo "==> chindows: 预制服务校验（aim / opencode）"
+[ -x /usr/bin/aim ] && echo "  aim: OK (Go 预编译)" || echo "  WARN: /usr/bin/aim 不可执行"
+[ -x /usr/bin/opencode ] || echo "  WARN: /usr/bin/opencode 不可执行"
+ls /usr/lib/tsai-12/opencode/opencode-linux-x64 \
+   /usr/lib/tsai-12/opencode/opencode-linux-arm64 >/dev/null 2>&1 \
+   || echo "  WARN: opencode 双架构二进制缺失（运行 opencode/aim 将失败）"
+
+echo "==> chindows: 模型目录说明"
+mkdir -p "$CHW/aai/share/models" "/usr/share/tsai-airgestured/models"
+for d in "$CHW/aai/share/models" "/usr/share/tsai-airgestured/models"; do
+  if [ ! -e "$d/README.txt" ]; then
+    echo "请将模型文件放置于此目录（见打包 README）" > "$d/README.txt"
+  fi
+done
+
+echo "==> chindows: 刷新应用菜单与图标缓存"
+# 清掉遗留旧命名菜单（非本包、指向旧 /usr/chwindows），避免重复入口
+for legacy in org.chwindows.ai-voice org.chwindows.update org.chwindows.se-model-manager; do
+  [ -f "/usr/share/applications/$legacy.desktop" ] && rm -f "/usr/share/applications/$legacy.desktop"
+done
+update-desktop-database "$APPS" 2>/dev/null || true
+for th in /usr/share/icons/hicolor /usr/share/icons/Win11 /usr/share/icons/Win11-dark; do
+  [ -d "$th" ] && gtk-update-icon-cache -f -q "$th" 2>/dev/null || true
+done
+
+echo "==> chindows: 安装 Python 依赖（pip-only 包，尽力而为）"
+python3 -m pip install --break-system-packages --no-input $PIP_PKGS 2>/dev/null \
+  || python3 -m pip install --no-input $PIP_PKGS 2>/dev/null \
+  || echo "WARN: 部分 pip 包安装失败，请手动执行: python3 -m pip install $PIP_PKGS"
+
+echo "==> chindows: 刷新 systemd 用户服务（不自动启用）"
+systemctl --user daemon-reload 2>/dev/null || true
+systemctl daemon-reload 2>/dev/null || true
+
+echo "==> chindows 安装完成。"
+echo "    运行应用：应用菜单（活动概览）"
+echo "    常驻服务：systemctl --user enable --now chinai3-app  （AIM/隔空手势见各 README）"
+exit 0

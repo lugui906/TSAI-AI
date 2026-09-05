@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=你好opencode
+Comment=系统级 AI 实时语音字幕（Whisper base 本地模型）
+Exec=python3 /usr/tsai-12/aai/main.py
+Icon=audio-input-microphone
+StartupWMClass=ai-voice
+Terminal=false
+Categories=Utility;Accessibility;
